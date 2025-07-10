@@ -1,0 +1,7 @@
+*.pyc
+*.kdev4
+*.kate-swp
+*.pt
+*.vscode
+runs
+*.egg-info

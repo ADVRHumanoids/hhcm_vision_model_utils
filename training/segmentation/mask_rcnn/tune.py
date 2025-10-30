@@ -69,7 +69,7 @@ from tqdm.auto import tqdm
 import optuna
 import pickle
 
-from utils import (
+from .utils import (
     get_default_config,
     load_training_config,
     save_default_config,

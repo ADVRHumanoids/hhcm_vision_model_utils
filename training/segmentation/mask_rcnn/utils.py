@@ -20,9 +20,9 @@ from tqdm.auto import tqdm
 from typing import Optional
 from PIL import Image, ImageDraw
 import torchvision
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torchvision.tv_tensors import BoundingBoxes, Mask
-from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
+from torchvision.utils import draw_bounding_boxes
 import torchvision.transforms.v2 as transforms
 from torchvision.models.detection import maskrcnn_resnet50_fpn, maskrcnn_resnet50_fpn_v2, MaskRCNN
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor

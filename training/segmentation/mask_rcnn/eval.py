@@ -51,12 +51,10 @@ from distinctipy import distinctipy
 from tqdm.auto import tqdm
 
 # Import custom utility functions
-from utils import (
+from .utils import (
     load_model_checkpoint,
     draw_bboxes,
-    draw_segmentation_masks,
     create_polygon_mask,
-    Mask
 )
 
 def main():

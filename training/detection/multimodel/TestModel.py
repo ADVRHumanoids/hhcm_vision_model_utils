@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Sep  8 13:00:25 2022
+Evaluation utilities for object detection models.
 
-@author: tori
+Provides testing functions for evaluating trained detection models using
+mean Average Precision (mAP) metrics and optional visualization of predictions
+with bounding boxes overlaid on images.
 
-From the testing part of https://www.kaggle.com/code/havinath/object-detection-using-pytorch-training
+@author: tori, 08-09-2022
+Modified by: Alessio Lovato, 31-10-2025
+
+Based on: https://www.kaggle.com/code/havinath/object-detection-using-pytorch-training
 """
 
 import numpy as np
@@ -90,6 +95,25 @@ outputs_to_print = []
 #             axs[i].imshow(sample)
             
 def test_simple(data_loader_test, model, device, show_images=False):
+    """
+    Evaluate an object detection model on a test dataset.
+
+    Computes mean Average Precision (mAP) metrics and optionally visualizes
+    predictions. Takes only the highest-scoring prediction per image for evaluation.
+
+    Args:
+        data_loader_test (DataLoader): PyTorch DataLoader containing test images and targets
+        model (nn.Module): Trained detection model to evaluate
+        device (torch.device): Device to run evaluation on (cuda or cpu)
+        show_images (bool, optional): If True, displays first 4 test images with predicted bounding boxes. Defaults to False.
+
+    Returns:
+        dict: Dictionary of mAP metrics including:
+            - map: Mean Average Precision across all IoU thresholds
+            - map_50: mAP at IoU threshold 0.50
+            - map_75: mAP at IoU threshold 0.75
+            - map_small/medium/large: mAP for different object sizes
+    """
 
     with torch.no_grad():
         

@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 16 10:46:19 2022
+Training script for multiple object detection model architectures on COCO datasets.
 
-@author: tori
+Provides unified training interface for various detection models including Faster R-CNN
+(ResNet50, MobileNet variants), FCOS, RetinaNet, and SSD. Supports automatic train/val/test
+splitting, data augmentation, and comprehensive evaluation with mAP metrics and visualizations.
 
-example taken from https://medium.com/fullstackai/how-to-train-an-object-detector-with-your-own-coco-dataset-in-pytorch-319e7090da5
+@author: tori, 16-08-2022
+Modified by: Alessio Lovato, 31-10-2025
+
+Based on: https://medium.com/fullstackai/how-to-train-an-object-detector-with-your-own-coco-dataset-in-pytorch-319e7090da5
 """
 import torch
 import torch.utils.data
@@ -33,6 +38,15 @@ from TestModel import test_simple
 example taken from https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html
 """
 def get_model_mobilenet(num_classes):
+    """
+    Create a Faster R-CNN model with MobileNetV2 backbone.
+
+    Args:
+        num_classes (int): Number of detection classes (including background)
+
+    Returns:
+        FasterRCNN: Faster R-CNN model with custom anchor generator and RoI pooler
+    """
     # load a pre-trained model for classification and return
     # only the features
     backbone = torchvision.models.mobilenet_v2(weights="DEFAULT").features
@@ -74,6 +88,16 @@ https://medium.com/fullstackai/how-to-train-an-object-detector-with-your-own-coc
 https://pytorch.org/vision/stable/models.html#object-detection
 """
 def get_model_fasterrcnn(num_classes, version=1):
+    """
+    Create a Faster R-CNN model with ResNet50 FPN backbone.
+
+    Args:
+        num_classes (int): Number of detection classes (including background)
+        version (int, optional): Model version (1 or 2). Defaults to 1.
+
+    Returns:
+        FasterRCNN: Pre-trained Faster R-CNN model with custom classification head
+    """
     
     # load an instance segmentation model pre-trained pre-trained on COCO
     # Default is COCO, and it seems no other weights are available now
@@ -93,10 +117,18 @@ def get_model_fasterrcnn(num_classes, version=1):
 
     return model
 
-"""
-this is for mobile uses?
-"""
+
 def get_model_fasterrcnn_mobilenet(num_classes, version='high'):
+    """
+    Create a Faster R-CNN model with MobileNetV3 FPN backbone for mobile deployment.
+
+    Args:
+        num_classes (int): Number of detection classes (including background)
+        version (str, optional): Model variant - 'high' for large model or 'low' for 320 model. Defaults to 'high'.
+
+    Returns:
+        FasterRCNN: Pre-trained mobile Faster R-CNN model with custom classification head
+    """
     
     # load an instance segmentation model pre-trained pre-trained on COCO
     # Default is COCO, and it seems no other weights are available now
@@ -118,6 +150,15 @@ def get_model_fasterrcnn_mobilenet(num_classes, version='high'):
     return model
 
 def get_model_fcos(num_classes):
+    """
+    Create an FCOS (Fully Convolutional One-Stage) detection model.
+
+    Args:
+        num_classes (int): Number of detection classes (including background)
+
+    Returns:
+        FCOS: Pre-trained FCOS model with ResNet50 FPN backbone
+    """
 
     weights = torchvision.models.detection.FCOS_ResNet50_FPN_Weights.DEFAULT
     model = torchvision.models.detection.fcos_resnet50_fpn(weigths=weights)
@@ -127,6 +168,16 @@ def get_model_fcos(num_classes):
     return model 
 
 def get_model_retinanet(num_classes, version=1):
+    """
+    Create a RetinaNet detection model with ResNet50 FPN backbone.
+
+    Args:
+        num_classes (int): Number of detection classes (including background)
+        version (int, optional): Model version (1 or 2). Defaults to 1.
+
+    Returns:
+        RetinaNet: Pre-trained RetinaNet model
+    """
 
     if version == 1:
         weights = torchvision.models.detection.RetinaNet_ResNet50_FPN_Weights.DEFAULT
@@ -142,6 +193,15 @@ def get_model_retinanet(num_classes, version=1):
     return model  
 
 def get_model_ssd(num_classes):
+    """
+    Create an SSD300 detection model with VGG16 backbone.
+
+    Args:
+        num_classes (int): Number of detection classes (including background)
+
+    Returns:
+        SSD: Pre-trained SSD300 model with custom classification head
+    """
 
     weights = torchvision.models.detection.SSD300_VGG16_Weights.DEFAULT
     model = torchvision.models.detection.ssd300_vgg16(weigths=weights)
@@ -154,6 +214,15 @@ def get_model_ssd(num_classes):
     return model 
 
 def get_model_ssdlite(num_classes):
+    """
+    Create an SSDLite320 detection model with MobileNetV3 backbone.
+
+    Args:
+        num_classes (int): Number of detection classes (including background)
+
+    Returns:
+        SSD: Pre-trained SSDLite320 model with custom classification head
+    """
 
     weights = torchvision.models.detection.SSDLite320_MobileNet_V3_Large_Weights.DEFAULT
     model = torchvision.models.detection.ssdlite320_mobilenet_v3_large(weigths=weights)
@@ -185,6 +254,16 @@ TODO
 #     return torchvision.transforms.Compose(custom_transforms)
 
 def get_transform(train=False):
+    """
+    Get image transformation pipeline for training or validation.
+
+    Args:
+        train (bool, optional): If True, applies data augmentation (horizontal/vertical flip,
+            sharpness adjustment, autocontrast). Defaults to False.
+
+    Returns:
+        Compose: Torchvision Compose object containing transformation pipeline
+    """
     custom_transforms = []
     custom_transforms.append(torchvision.transforms.ToTensor())
     if train:
@@ -195,7 +274,29 @@ def get_transform(train=False):
         custom_transforms.append(torchvision.transforms.RandomAutocontrast())
     return torchvision.transforms.Compose(custom_transforms)
 
-def run(data_path, data_name="laserSpots", batch_size=1, num_epochs=1, model_type = 'faster_rcnn_v1', val_percentage=0.20, test_percentage=0.10) :
+def run(data_path, data_name="laserSpots", batch_size=1, num_epochs=1, model_type='faster_rcnn_v1', val_percentage=0.20, test_percentage=0.10):
+    """
+    Train an object detection model on a COCO format dataset.
+
+    Loads dataset, splits into train/val/test sets, trains specified model architecture,
+    evaluates on test set, and saves model with training/validation loss plots and test mAP metrics.
+
+    Args:
+        data_path (str): Path to dataset directory containing 'images/' and 'annotations/instances_default.json'
+        data_name (str, optional): Dataset identifier for output file naming. Defaults to "laserSpots".
+        batch_size (int, optional): Training batch size. Defaults to 1.
+        num_epochs (int, optional): Number of training epochs. Defaults to 1.
+        model_type (str, optional): Model architecture to train. Options: 'faster_rcnn_v1', 'faster_rcnn_v2',
+            'fasterrcnn_mobilenet_high', 'fasterrcnn_mobilenet_low'. Defaults to 'faster_rcnn_v1'.
+        val_percentage (float, optional): Fraction of data for validation, range: 0.0-1.0. Defaults to 0.20.
+        test_percentage (float, optional): Fraction of data for testing, range: 0.0-1.0. Defaults to 0.10.
+
+    Returns:
+        None: Saves trained model as .pt file and training plot as .png file
+
+    Raises:
+        ValueError: If model_type is not recognized
+    """
 #if __name__ == "__main__":
 #    batch_size=1
 #    num_epochs=10
@@ -303,7 +404,7 @@ def run(data_path, data_name="laserSpots", batch_size=1, num_epochs=1, model_typ
     
     else:
         print(f'model {model_type} not recognized')
-        return
+        raise ValueError(f'model {model_type} not recognized')
     
     # move model to the right device
     model.to(device)

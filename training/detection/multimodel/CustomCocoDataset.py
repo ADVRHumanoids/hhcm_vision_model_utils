@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 16 15:17:31 2022
+Custom PyTorch Dataset class for loading COCO format object detection datasets.
 
-@author: tori
+Provides a PyTorch-compatible dataset interface for COCO annotations, handling
+image loading, bounding box format conversion (COCO to PyTorch), and optional
+data transformations. Suitable for training object detection models with COCO datasets.
+
+@author: tori, 16-08-2022
+Modified by: Alessio Lovato, 31-10-2025
 """
 import os
 import torch
@@ -11,13 +16,47 @@ from pycocotools.coco import COCO
 from PIL import Image
 
 class CustomCocoDataset(torch.utils.data.Dataset):
+    """
+    Custom COCO dataset for object detection tasks.
+
+    Loads images and annotations from COCO format files and provides them
+    in PyTorch-compatible format for training detection models.
+    """
+
     def __init__(self, root, annotation, transforms=None):
+        """
+        Initialize the COCO dataset.
+
+        Args:
+            root (str): Root directory containing images
+            annotation (str): Path to COCO format annotation JSON file
+            transforms (callable, optional): Optional transforms to apply to images. Defaults to None.
+        """
         self.root = root
         self.transforms = transforms
         self.coco = COCO(annotation)
         self.ids = list(sorted(self.coco.imgs.keys()))
 
     def __getitem__(self, index):
+        """
+        Get a single image and its annotations by index.
+
+        Converts COCO bounding box format [xmin, ymin, width, height] to
+        PyTorch format [xmin, ymin, xmax, ymax].
+
+        Args:
+            index (int): Index of the image to retrieve
+
+        Returns:
+            tuple: (image, annotation_dict) where:
+                - image: PIL Image or transformed tensor
+                - annotation_dict: Dictionary containing:
+                    - boxes (Tensor): Bounding boxes in [xmin, ymin, xmax, ymax] format
+                    - labels (Tensor): Class labels (all 1 for single-class detection)
+                    - image_id (Tensor): Image ID
+                    - area (Tensor): Bounding box areas
+                    - iscrowd (Tensor): Crowd flags (all 0)
+        """
         # Own coco file
         coco = self.coco
         # Image ID
@@ -85,5 +124,11 @@ class CustomCocoDataset(torch.utils.data.Dataset):
         return img, my_annotation
 
     def __len__(self):
+        """
+        Get the total number of images in the dataset.
+
+        Returns:
+            int: Number of images in the dataset
+        """
         return len(self.ids)
     

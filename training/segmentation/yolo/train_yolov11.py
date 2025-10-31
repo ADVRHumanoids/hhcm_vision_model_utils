@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+"""
+Basic training script for YOLOv11 segmentation models.
+
+Provides simple command-line interface for training YOLOv11 segmentation models
+on YOLO format datasets with configurable hyperparameters. Generates timestamped
+output directories for tracking multiple training runs.
+
+Modified by: Alessio Lovato, 31-10-2025
+"""
+
 from ultralytics import YOLO
 import os, time
 

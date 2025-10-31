@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+"""
+Hyperparameter optimization script for YOLOv11 segmentation using Ray Tune.
+
+Performs hyperparameter search for YOLOv11 segmentation models using Ray Tune
+with Optuna search algorithm and ASHA scheduling. Integrates with Weights & Biases
+for experiment tracking and provides custom callbacks for detailed metric logging.
+
+Created by: Alessio Lovato
+Modified by: Alessio Lovato, 31-10-2025
+"""
+
 import os
 import gc
 import torch
@@ -11,6 +23,12 @@ from ultralytics import YOLO
 
 # Custom callback to capture training metrics per epoch
 def on_train_epoch_end(trainer):
+    """
+    Custom callback for logging training metrics at end of each epoch.
+
+    Args:
+        trainer: Ultralytics YOLO trainer object with training state
+    """
     metrics = {}
     # Log training loss components if available
     try:
@@ -42,10 +60,16 @@ def on_train_epoch_end(trainer):
 
 def patched_on_fit_epoch_end(trainer):
     """
-    Patched callback to replace on_fit_epoch_end for YOLO training.
-    This function is called at the end of each training epoch.
-    Original function available at:
-    https://docs.ultralytics.com/reference/utils/callbacks/raytune/#ultralytics.utils.callbacks.raytune.on_fit_epoch_end
+    Patched callback for Ray Tune integration with YOLO training.
+
+    Replaces default on_fit_epoch_end to compute and report custom metrics
+    including F1 scores for both box and segmentation tasks. Reports metrics
+    to Ray Tune for hyperparameter optimization.
+
+    Args:
+        trainer: Ultralytics YOLO trainer object with training metrics
+
+    Original function: https://docs.ultralytics.com/reference/utils/callbacks/raytune/#ultralytics.utils.callbacks.raytune.on_fit_epoch_end
     """
         
     metrics = trainer.metrics
@@ -95,8 +119,43 @@ def patched_on_fit_epoch_end(trainer):
 
 def train_yolo(config: dict):
     """
-    Single Ray Tune trial. Initializes a W&B run, trains YOLO, logs metrics,
-    and reports best F1 to Ray for hyperparameter optimization.
+    Execute a single hyperparameter optimization trial for YOLO training.
+
+    Initializes Weights & Biases run, trains YOLO model with given hyperparameters,
+    logs metrics to W&B, and reports best F1 score to Ray Tune for optimization.
+    Includes custom callbacks for detailed metric tracking and memory management.
+
+    Args:
+        config (dict): Hyperparameter configuration dictionary containing:
+            - model_name (str): YOLO model variant (e.g., 'yolo11m-seg.pt')
+            - data_yaml (str): Path to dataset YAML file
+            - epochs (int): Number of training epochs
+            - imgsz (int): Input image size
+            - batch (int): Batch size
+            - lr0 (float): Initial learning rate
+            - lrf (float): Final learning rate factor
+            - momentum (float): SGD momentum
+            - weight_decay (float): Weight decay
+            - warmup_epochs (int): Warmup epochs
+            - box (float): Box loss weight
+            - cls (float): Classification loss weight
+            - dfl (float): DFL loss weight
+            - hsv_h (float): HSV hue augmentation
+            - hsv_s (float): HSV saturation augmentation
+            - hsv_v (float): HSV value augmentation
+            - degrees (float): Rotation augmentation range
+            - translate (float): Translation augmentation
+            - scale (float): Scale augmentation
+            - shear (float): Shear augmentation
+            - perspective (float): Perspective augmentation
+            - flipud (float): Vertical flip probability
+            - fliplr (float): Horizontal flip probability
+            - mosaic (float): Mosaic augmentation probability
+            - mixup (float): Mixup augmentation probability
+            - copy_paste (float): Copy-paste augmentation probability
+
+    Returns:
+        None: Reports metrics to Ray Tune via tune.report()
     """
 
     # Initialize Weights & Biases run

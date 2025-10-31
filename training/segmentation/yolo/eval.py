@@ -1,8 +1,13 @@
-# /bin/bash/env python3
+#!/usr/bin/env python3
 """
-@brief Script to visualize YOLOv11-seg ground truth masks with random sampling.
-Shows ground truth masks (colored, semi-transparent) in a separate window,
-while predictions are displayed automatically with result.show().
+Evaluation and visualization script for YOLOv11 segmentation models.
+
+Visualizes ground truth segmentation masks overlaid on images with random sampling
+from the dataset. Displays predictions alongside ground truth with color-coded masks
+and class labels for comparison and evaluation.
+
+Created by: Alessio Lovato
+Modified by: Alessio Lovato, 31-10-2025
 """
 
 import cv2
@@ -18,8 +23,15 @@ from ultralytics import YOLO
 
 def load_yolo_segmentation(label_path, img_shape):
     """
-    Load YOLO segmentation annotations (txt format).
-    Returns a list of (class_id, polygon_points).
+    Load YOLO segmentation annotations from text file.
+
+    Args:
+        label_path (str): Path to YOLO format label file (.txt)
+        img_shape (tuple): Image shape (height, width, channels)
+
+    Returns:
+        list: List of tuples (class_id, polygon_points) where polygon_points
+            is numpy array of shape (N, 2) with denormalized coordinates
     """
     h, w = img_shape[:2]
     polygons = []
@@ -41,8 +53,19 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 def visualize_gt_pred(image_path, label_path, class_names, result):
     """
-    Show ground truth segmentation masks (semi-transparent + labels)
-    alongside YOLO predictions (from Ultralytics result).
+    Visualize ground truth and predicted segmentation masks side-by-side.
+
+    Creates visualization with ground truth masks (semi-transparent colored polygons)
+    and class labels, displayed alongside model predictions.
+
+    Args:
+        image_path (str): Path to input image file
+        label_path (str): Path to YOLO format label file with ground truth annotations
+        class_names (list): List of class names for labeling
+        result: Ultralytics YOLO result object containing predictions
+
+    Returns:
+        None: Displays visualization in window, waits for keypress to continue
     """
     img = cv2.imread(image_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)

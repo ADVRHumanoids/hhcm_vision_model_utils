@@ -1,11 +1,26 @@
 #!/usr/bin/env python3
 """
-TFRecord to COCO Format Converter
-@brief Converts TensorFlow TFRecord files to COCO dataset format.
-@details This script reads TFRecord files containing images and segmentation masks,
-         extracts the data, and converts it to COCO format with separate directories
-         for images and instance masks. Useful for converting TensorFlow-based datasets
-         to a format compatible with other frameworks and annotation tools.
+TFRecord to COCO Format Converter.
+
+Converts TensorFlow TFRecord files containing instance segmentation data to COCO dataset format.
+This script reads TFRecord files with images and segmentation masks, extracts the data, and
+converts it to COCO JSON format with separate directories for images and instance masks.
+
+The conversion process:
+1. Parses TFRecord files to extract images, masks, and labels
+2. Saves images to Images/ directory
+3. Creates colored composite instance masks and saves to InstanceMasks/
+4. Generates COCO format annotations.json with:
+   - Image metadata (dimensions, filenames)
+   - Category definitions with unique IDs
+   - Instance annotations with bounding boxes and polygon segmentations
+   - Area calculations and contour extraction
+
+Useful for converting TensorFlow-based datasets to a format compatible with other
+frameworks, annotation tools, and training pipelines that expect COCO format.
+
+Author: Alessio Lovato
+Modified by: Alessio Lovato, 03-11-2025
 
 Arguments:
     tfrecord_path: Path to input TFRecord file
@@ -13,9 +28,9 @@ Arguments:
 
 Output Structure:
     output_root/
-    ├── Images/          # Extracted images
-    ├── InstanceMasks/      # Instance segmentation masks
-    └── annotations.json    # COCO format annotations
+    ├── Images/             # Extracted RGB images
+    ├── InstanceMasks/      # Colored composite instance segmentation masks
+    └── annotations.json    # COCO format annotations with bbox and polygons
 """
 
 import os
@@ -30,6 +45,25 @@ import tensorflow as tf
 
 
 def parse_tfrecord(example_proto):
+    """
+    Parse a single TFRecord example to extract image and annotation features.
+
+    Defines the feature schema for TFRecord parsing, including image data, metadata,
+    and instance segmentation masks with their corresponding class labels.
+
+    Args:
+        example_proto: Serialized TFRecord example proto
+
+    Returns:
+        dict: Parsed features containing:
+            - image/encoded: Encoded image bytes (JPEG/PNG)
+            - image/filename: Original filename string
+            - image/height: Image height in pixels
+            - image/width: Image width in pixels
+            - image/object/mask: Sparse tensor of encoded mask images
+            - image/object/mask/class/text: Sparse tensor of class name strings
+            - image/object/mask/class/label: Sparse tensor of class label integers
+    """
     feature_description = {
         'image/encoded': tf.io.FixedLenFeature([], tf.string),
         'image/filename': tf.io.FixedLenFeature([], tf.string),
@@ -43,6 +77,38 @@ def parse_tfrecord(example_proto):
 
 
 def tfrecord_to_coco(tfrecord_path, output_root):
+    """
+    Convert TFRecord dataset to COCO format with images, masks, and annotations.
+
+    Processes each record in the TFRecord file, extracting images and instance masks,
+    generating COCO format annotations with bounding boxes and polygon segmentations,
+    and creating colored composite masks for visualization.
+
+    The function:
+    1. Creates output directory structure (Images/, InstanceMasks/)
+    2. Iterates through TFRecord dataset
+    3. Saves each image to disk
+    4. Processes instance masks:
+       - Assigns unique colors (using tab20 colormap)
+       - Computes bounding boxes from masks
+       - Extracts polygon contours using OpenCV
+       - Calculates instance areas
+    5. Builds COCO format data structure with images, categories, and annotations
+    6. Saves composite colored masks for visualization
+    7. Writes annotations.json file
+
+    Args:
+        tfrecord_path (str): Path to input TFRecord file
+        output_root (str): Root directory where COCO dataset will be created
+
+    Output Files:
+        - {output_root}/Images/*.jpg: Extracted images
+        - {output_root}/InstanceMasks/*.png: Colored composite instance masks
+        - {output_root}/annotations.json: COCO format annotations
+
+    Returns:
+        None: Outputs are written to disk
+    """
     os.makedirs(f"{output_root}/Images", exist_ok=True)
     os.makedirs(f"{output_root}/InstanceMasks", exist_ok=True)
 

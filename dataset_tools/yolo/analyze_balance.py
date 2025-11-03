@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
 Analyze YOLO dataset label balance across train/val/test splits.
-Shows class distribution, instance counts, and visualizes the balance.
+
+Shows class distribution, instance counts, and visualizes the balance with
+ASCII bar charts and detailed statistics. Detects imbalance and provides
+warnings when class ratios exceed acceptable thresholds.
+
+Author: Alessio Lovato
 """
 
 import os

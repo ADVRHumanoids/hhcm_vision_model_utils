@@ -1,7 +1,21 @@
 #!/usr/bin/env python3
 """
 Upload YOLO segmentation dataset to Labelbox.
-Converts YOLO polygon annotations to Labelbox polygon annotations.
+
+Converts YOLO polygon annotations to Labelbox mask format and uploads
+images with annotations to a Labelbox project for review or additional
+annotation. Handles batch uploads with progress tracking and ontology mapping.
+
+Author: Alessio Lovato
+
+Requirements:
+    pip install labelbox pillow
+
+Arguments:
+    --dataset: Path to YOLO dataset.yaml file
+    --api-key: Labelbox API key
+    --project-name: Name for Labelbox project
+    --split: Dataset split to upload (train/val/test)
 """
 
 import os

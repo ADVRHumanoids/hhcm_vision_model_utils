@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
 Balance YOLO dataset by removing files or redistributing across splits.
-Proposes changes and requires user confirmation before applying.
+
+This tool intelligently balances class distribution by removing files with
+dominant overrepresented classes. It proposes changes with detailed statistics
+and requires user confirmation before applying modifications.
+
+Author: Alessio Lovato
 """
 
 import os

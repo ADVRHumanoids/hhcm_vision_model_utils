@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+"""
+Rename YOLO class IDs across multiple dataset folders.
+
+This script batch-updates YOLO label files by replacing old class IDs with new ones.
+Useful for consolidating datasets with different class numbering schemes or adding
+new classes to existing datasets.
+
+Author: tori
+
+Usage:
+    Edit the label_dirs list with paths to your label folders
+    Edit old_class_id and new_class_id variables
+    Run: python rename_class_ids.py
+"""
+
 import os
 from pathlib import Path
 

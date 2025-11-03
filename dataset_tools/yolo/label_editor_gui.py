@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-YOLO Dataset Label Editor - GUI Version
-Interactive tool for fixing YOLO segmentation dataset labels using Tkinter.
+YOLO Dataset Label Editor - Interactive GUI Tool.
+
+Interactive Tkinter-based tool for fixing YOLO segmentation dataset labels.
+Allows quick class changes and annotation deletions with visual feedback
+using color-coded polygons. Supports keyboard navigation and manual save.
+
+Author: Alessio Lovato
 
 Controls:
 - Left Click on mask: Change class (cycles through classes)
@@ -10,6 +15,9 @@ Controls:
 - Backspace or 'p': Previous image
 - 's': Save current annotations
 - 'q': Quit
+
+Arguments:
+    --dataset: Path to YOLO dataset.yaml file
 """
 
 import tkinter as tk

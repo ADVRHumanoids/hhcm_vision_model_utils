@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 """
-Manual YOLO Dataset Filter
-@brief Interactive tool to review and filter YOLO dataset images.
-@details Displays each image with its annotations and allows user to keep or delete.
-         Uses spacebar to keep and move to next, backspace to delete and move to next.
+Manual YOLO Dataset Filter - Interactive Review Tool.
+
+Interactive command-line tool to review and filter YOLO dataset images.
+Displays each image with its annotations overlaid as colored transparent masks
+and allows user to keep or delete using simple keyboard controls.
+
+Author: Alessio Lovato
 
 Arguments:
     --dataset: Path to YOLO dataset.yaml file
     --splits: Which splits to review (default: all)
+
+Controls:
+    Spacebar: Keep image and move to next
+    Backspace: Delete image and move to next
+    Q: Quit
 """
 
 import os

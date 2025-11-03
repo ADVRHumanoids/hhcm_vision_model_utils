@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-YOLO Dataset Small Polygon Filter - GUI Version
-Interactive tool for removing annotations with too few points.
+YOLO Dataset Small Polygon Filter - Interactive GUI Tool.
+
+Interactive Tkinter-based tool for removing annotations with too few points.
+Automatically marks polygons below a minimum point threshold and allows
+visual review and manual override. Supports undo, batch processing across
+multiple dataset splits, and provides detailed statistics.
+
+Author: Alessio Lovato
 
 Controls:
 - Left Click: Toggle annotation delete state
@@ -11,6 +17,10 @@ Controls:
 - Z: Undo last 10 actions
 - S: Save current changes
 - Q / ESC: Quit
+
+Arguments:
+    --dataset: Path to YOLO dataset.yaml file
+    --min-points: Minimum points threshold (default: 15)
 """
 
 import tkinter as tk

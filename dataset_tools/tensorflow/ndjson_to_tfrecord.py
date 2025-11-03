@@ -1,19 +1,34 @@
-#  @brief Script to convert Labelbox-exported NDJSON annotations to TensorFlow TFRecord format.
-# 
-#  This script downloads reference images and segmentation masks, parses the annotations,
-#  and generates a TFRecord file suitable for training instance segmentation models (e.g., Mask R-CNN).
-# 
-#  @details
-#  The NDJSON file must be exported from a Labelbox project with image annotations.
-#  It should contain references to image URLs and segmentation masks in Labelbox's format.
-#  You must provide a Labelbox API key for downloading masks if required.
-# 
-#  Usage:
-#  @code
-#    python3 script.py --ndjson data.ndjson --config config.yaml --image_folder images/ --tfrecord output.tfrecord
-#  @endcode
-
 #!/usr/bin/env python3
+"""
+Convert Labelbox NDJSON annotations to TensorFlow TFRecord format.
+
+Downloads reference images and segmentation masks from Labelbox, parses annotations,
+and generates TFRecord files suitable for training instance segmentation models like
+Mask R-CNN with TensorFlow Object Detection API.
+
+Author: Alessio Lovato
+
+Arguments:
+    --config: Path to YAML config file with Labelbox api_key (default: config.yaml)
+    --ndjson: Path to Labelbox NDJSON export file (default: test3.ndjson)
+    --image_folder: Folder to save downloaded images (default: dataset_1)
+    --tfrecord: Output TFRecord file path (default: dataset_1.tfrecord)
+
+Config File Format (config.yaml):
+    api_key: "YOUR_LABELBOX_API_KEY"
+
+TFRecord Schema:
+    - image/encoded: JPEG image bytes
+    - image/height, image/width: Image dimensions
+    - image/filename: Original filename
+    - image/object/bbox/*: Normalized bounding boxes [xmin, ymin, xmax, ymax]
+    - image/object/bbox/class/*: Class labels and IDs
+    - image/object/mask: Binary mask PNG bytes
+    - image/object/mask/class/*: Mask class labels and IDs
+
+Requirements:
+    pip install tensorflow requests ndjson pyyaml opencv-python numpy
+"""
 
 import tensorflow as tf
 import requests

@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 """
-  @brief Script to visualize TensorFlow TFRecord entries created from Labelbox NDJSON annotations.
+Visualize and debug TensorFlow TFRecord files for instance segmentation.
 
-  This script reads a TFRecord file, decodes and displays the reference image,
-  all instance masks, and bounding boxes in a subplot using matplotlib.
+Reads TFRecord files, decodes images, masks, and bounding boxes, and displays them
+in an interactive matplotlib subplot for visual inspection. Useful for verifying
+data correctness before training Mask R-CNN or other instance segmentation models.
 
-  @details
-  The TFRecord is assumed to have been generated from NDJSON exported from Labelbox,
-  and includes encoded images, bounding boxes, and segmentation masks.
-  The visualization can be useful for debugging and verifying data correctness before training models like Mask R-CNN.
+Author: Alessio Lovato
 
-  Usage:
-  @code
-    python3 visualize_tfrecord.py path/to/file.tfrecord --max-records 3
-  @endcode
+Arguments:
+    tfrecord_path: Path to .tfrecord file (positional)
+    --max-records: Maximum number of records to visualize (default: -1 for all)
 
-  @note Press "ESC" to close the current visualization window and continue to the next record.
+Controls:
+    ESC: Close current visualization and move to next record
+
+Requirements:
+    pip install tensorflow matplotlib pillow numpy
 """
 
 import tensorflow as tf

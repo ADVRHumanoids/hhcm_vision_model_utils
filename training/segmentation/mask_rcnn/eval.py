@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 """
 Evaluate a trained Mask R-CNN model on a test dataset.
+
 This script loads a pre-trained model from a specified checkpoint and evaluates its performance
-on a subset of images from the test dataset.
+on a subset of images from the test dataset. Supports both standard folder structure and YOLO
+dataset format. Provides visual comparison between ground truth and predictions with confidence
+scores and interactive visualization.
+
+Modified by: Alessio Lovato, 03-11-2025
+
 Arguments:
-    --checkpoint: Path to the model checkpoint file.
-    --test-folder: Path to the folder containing the test images and annotations.
-    --images: Number of images to evaluate (default: 10).
-    --threshold: Confidence threshold for predictions (default: 0.5).
-    --seed: Random seed for reproducibility (optional).
+    --checkpoint: Path to the model checkpoint file
+    --test-folder: Path to the folder containing the test images and annotations
+    --images: Number of images to evaluate (default: 10)
+    --threshold: Confidence threshold for predictions (default: 0.5)
+    --seed: Random seed for reproducibility (optional)
+    --model-version: Model version to use (1 or 2, default: 1)
+    --yolo: Use YOLO dataset folder structure (flag)
 """
 
 # Import Python Standard Library dependencies
@@ -58,6 +66,17 @@ from .utils import (
 )
 
 def main():
+    """
+    Main evaluation function for Mask R-CNN model.
+
+    Loads trained model checkpoint, processes test images from dataset folder,
+    generates predictions with confidence filtering, and visualizes results with
+    side-by-side comparison of ground truth and predictions. Supports interactive
+    matplotlib visualization with ESC key to continue.
+
+    Returns:
+        None: Displays visualizations and prints metrics for each evaluated image
+    """
     parser = argparse.ArgumentParser(description="Mask R-CNN Evaluation")
     parser.add_argument("--checkpoint", type=str, required=True, help="Path to model checkpoint file")
     parser.add_argument("--test-folder", type=str, required=True, help="Path to test data folder")

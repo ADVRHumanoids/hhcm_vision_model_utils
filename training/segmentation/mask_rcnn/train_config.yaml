@@ -6,7 +6,7 @@
 # Training Arguments (Command Line Defaults)
 # ------------------------------------------
 training:
-  trials: 50              # Number of hyperparameter optimization trials
+  trials: 50                  # Number of hyperparameter optimization trials
   train_pct: 0.8              # Percentage of data to use for training (0.0-1.0)
   patience: 10                # Early stopping patience (epochs)
   save_top_k: 5               # Number of top trials to save checkpoints for

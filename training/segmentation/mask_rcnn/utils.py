@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
-
 """
 Utility functions for Mask R-CNN training and evaluation.
+
+This module provides a comprehensive set of utility functions and classes for training and
+evaluating Mask R-CNN models, including:
+
+- Configuration management (loading/saving YAML configs)
+- Dataset classes (DefectDataset for LabelMe format)
+- Model creation and checkpoint management
+- Training and validation loops with metrics
+- Visualization utilities (bounding boxes, masks, training curves)
+- Reporting functions (confusion matrices, parameter analysis)
+- Memory management and cleanup utilities
+
+Modified by: Alessio Lovato, 03-11-2025
 """
 
 import os
@@ -64,7 +76,13 @@ def load_training_config(config_path: str = None):
         return None
 
 def get_default_config():
-    """Get default configuration dictionary."""
+    """
+    Get default configuration dictionary for training.
+
+    Returns:
+        dict: Default configuration with training settings, model version,
+              and hyperparameter search space
+    """
     return {
         'training': {
             'trials': 50,
@@ -94,7 +112,12 @@ def get_default_config():
     }
 
 def save_default_config(save_path: str):
-    """Save default configuration to YAML file."""
+    """
+    Save default configuration to YAML file.
+
+    Args:
+        save_path (str): Path where the YAML configuration file will be saved
+    """
     config = get_default_config()
     try:
         with open(save_path, 'w') as f:
@@ -156,7 +179,17 @@ def get_optimizer(params, optimizer_name: str, lr: float, weight_decay: float = 
     return optimizers.get(optimizer_name, torch.optim.Adam(params, lr=lr, weight_decay=weight_decay))
 
 def save_model_checkpoint(model, optimizer, epoch, loss, config, save_path):
-    """Save model checkpoint"""
+    """
+    Save model checkpoint with training state.
+
+    Args:
+        model: PyTorch model to save
+        optimizer: Optimizer state to save
+        epoch (int): Current training epoch
+        loss (float): Current loss value
+        config (dict): Training configuration
+        save_path (str): Path where checkpoint will be saved
+    """
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
@@ -175,19 +208,29 @@ def save_model_checkpoint(model, optimizer, epoch, loss, config, save_path):
 # --------------------
 class DefectDataset(Dataset):
     """
-    This class represents a PyTorch Dataset for a collection of images and their annotations.
-    The class is designed to load images along with their corresponding segmentation masks, bounding box annotations, and labels.
+    PyTorch Dataset for loading images with segmentation masks and bounding box annotations.
+
+    This dataset class is designed for instance segmentation tasks with LabelMe-format annotations.
+    It loads images along with their corresponding polygon segmentation masks, automatically
+    generates bounding boxes from masks, and applies optional transforms for data augmentation.
+
+    Attributes:
+        _img_keys (list): List of image identifiers
+        _annotation_df (DataFrame): DataFrame containing image annotations
+        _img_dict (dict): Dictionary mapping image keys to file paths
+        _class_to_idx (dict): Dictionary mapping class names to indices
+        _transforms (callable): Optional transforms to apply to images and annotations
     """
     def __init__(self, img_keys, annotation_df, img_dict, class_to_idx, transforms=None):
         """
-        Constructor for the HagridDataset class.
+        Initialize the DefectDataset.
 
-        Parameters:
-        img_keys (list): List of unique identifiers for images.
-        annotation_df (DataFrame): DataFrame containing the image annotations.
-        img_dict (dict): Dictionary mapping image identifiers to image file paths.
-        class_to_idx (dict): Dictionary mapping class labels to indices.
-        transforms (callable, optional): Optional transform to be applied on a sample.
+        Args:
+            img_keys (list): List of unique identifiers for images
+            annotation_df (DataFrame): DataFrame containing the image annotations
+            img_dict (dict): Dictionary mapping image identifiers to image file paths
+            class_to_idx (dict): Dictionary mapping class labels to indices
+            transforms (callable, optional): Optional transform to be applied on a sample
         """
         super(Dataset, self).__init__()
         
@@ -199,10 +242,10 @@ class DefectDataset(Dataset):
         
     def __len__(self):
         """
-        Returns the length of the dataset.
+        Get the total number of images in the dataset.
 
         Returns:
-        int: The number of items in the dataset.
+            int: The number of items in the dataset
         """
         return len(self._img_keys)
         
@@ -210,11 +253,14 @@ class DefectDataset(Dataset):
         """
         Fetch an item from the dataset at the specified index.
 
-        Parameters:
-        index (int): Index of the item to fetch from the dataset.
+        Args:
+            index (int): Index of the item to fetch from the dataset
 
         Returns:
-        tuple: A tuple containing the image and its associated target (annotations).
+            tuple: (image, target) where target is a dict with keys:
+                - 'masks': Binary segmentation masks (BoolTensor)
+                - 'boxes': Bounding boxes in xyxy format (BoundingBoxes)
+                - 'labels': Class labels (LongTensor)
         """
         # Retrieve the key for the image at the specified index
         img_key = self._img_keys[index]
@@ -231,13 +277,18 @@ class DefectDataset(Dataset):
 
     def _load_image_and_target(self, annotation):
         """
-        Load an image and its target (bounding boxes and labels).
+        Load an image and its target from annotations.
 
-        Parameters:
-        annotation (pandas.Series): The annotations for an image.
+        Reads image file, converts polygon annotations to binary masks, generates
+        bounding boxes from masks, and prepares class labels.
+
+        Args:
+            annotation (pandas.Series): The annotations for an image
 
         Returns:
-        tuple: A tuple containing the image and a dictionary with 'boxes' and 'labels' keys.
+            tuple: (image, target) where:
+                - image: PIL Image in RGB format
+                - target: dict with 'masks', 'boxes', and 'labels'
         """
         # Retrieve the file path of the image
         filepath = self._img_dict[annotation.name]
@@ -265,15 +316,18 @@ def load_labelme_dataset(
     train_keys, val_keys, annotation_df, img_dict, class_names,
     train_tfms=None, valid_tfms=None):
     """
-    Load a LabelMe style dataset and create DataLoaders for training and validation.
+    Load a LabelMe-format dataset and create Dataset objects for training and validation.
 
-    Parameters:
-    train_keys (list): List of keys for the training images.
-    val_keys (list): List of keys for the validation images.
-    annotation_df (DataFrame): DataFrame containing the image annotations.
-    img_dict (dict): Dictionary mapping image keys to image file paths.
-    class_names (list): List of class names in the dataset.
-    train_tfms (callable, optional): Transformations to apply to training images.
+    Creates DefectDataset instances with proper class-to-index mappings and optional
+    transforms for data augmentation. Prints dataset sizes for verification.
+
+    Args:
+        train_keys (list): List of keys for the training images
+        val_keys (list): List of keys for the validation images
+        annotation_df (DataFrame): DataFrame containing the image annotations
+        img_dict (dict): Dictionary mapping image keys to image file paths
+        class_names (list): List of class names in the dataset (including background)
+        train_tfms (callable, optional): Transformations to apply to training images
     valid_tfms (callable, optional): Transformations to apply to validation images.
     
     Returns:
@@ -301,6 +355,16 @@ def load_labelme_dataset(
 # Model
 # --------------------
 def create_model(num_classes: int, model_version: int = 1):
+    """
+    Create a Mask R-CNN model with custom number of classes.
+
+    Args:
+        num_classes (int): Number of classes including background
+        model_version (int): Model version (1 for maskrcnn_resnet50_fpn, 2 for v2)
+
+    Returns:
+        MaskRCNN: Initialized Mask R-CNN model with pretrained backbone
+    """
     model = None
     if model_version == 1:
         model = maskrcnn_resnet50_fpn(weights="DEFAULT")
@@ -318,6 +382,21 @@ def create_model(num_classes: int, model_version: int = 1):
     return model
 
 def load_model_checkpoint(num_classes: int, checkpoint_path: str, device: str, model_version: int = 1):
+    """
+    Load a model from checkpoint file.
+
+    Args:
+        num_classes (int): Number of classes including background
+        checkpoint_path (str): Path to checkpoint file
+        device (str): Device to load model on ('cpu' or 'cuda')
+        model_version (int): Model version to use (1 or 2)
+
+    Returns:
+        MaskRCNN: Loaded model with weights from checkpoint
+
+    Raises:
+        FileNotFoundError: If checkpoint file does not exist
+    """
     # Create model instance
     model = create_model(num_classes=num_classes, model_version=model_version)
     if not os.path.isfile(checkpoint_path):
@@ -329,8 +408,21 @@ def load_model_checkpoint(num_classes: int, checkpoint_path: str, device: str, m
 
 def save_cpu_checkpoint(model, optimizer, epoch, loss, config, save_path):
     """
-    Save a CPU-only checkpoint (move tensors to CPU before saving).
-    Useful when GPU memory is scarce and we want to persist a safe checkpoint.
+    Save a CPU-only checkpoint by moving all tensors to CPU before saving.
+
+    Useful when GPU memory is scarce and we want to persist a safe checkpoint
+    without keeping GPU memory allocated.
+
+    Args:
+        model: PyTorch model to save
+        optimizer: Optimizer state to save (can be None)
+        epoch (int): Current training epoch
+        loss (float or None): Current loss value
+        config (dict): Training configuration dictionary
+        save_path (str): Path where checkpoint will be saved
+
+    Returns:
+        None: Checkpoint is saved to disk at save_path
     """
     try:
         # Move model state dict to CPU
@@ -376,7 +468,19 @@ def save_cpu_checkpoint(model, optimizer, epoch, loss, config, save_path):
 # Validation
 # --------------------
 def validate_model(model, val_loader, device, confidence_threshold=0.5):
-    """Validate model and compute metrics"""
+    """
+    Validate model and compute comprehensive metrics.
+
+    Args:
+        model: PyTorch model to validate
+        val_loader: DataLoader for validation data
+        device: Device to run validation on
+        confidence_threshold (float): Confidence threshold for predictions (default: 0.5)
+
+    Returns:
+        tuple: (avg_val_loss, all_predictions, all_targets, metrics) where metrics dict
+               contains accuracy, precision, recall, F1 scores (weighted and macro)
+    """
     model.eval()
     
     all_predictions = []
@@ -490,7 +594,19 @@ def validate_model(model, val_loader, device, confidence_threshold=0.5):
     return avg_val_loss, all_predictions, all_targets, metrics
 
 def calculate_training_metrics(model, train_loader, device, max_batches=None, confidence_threshold=0.5):
-    """Calculate metrics on a subset of training data without affecting gradients"""
+    """
+    Calculate metrics on a subset of training data without affecting gradients.
+
+    Args:
+        model: PyTorch model to evaluate
+        train_loader: DataLoader for training data
+        device: Device to run evaluation on
+        max_batches (int, optional): Maximum number of batches to evaluate
+        confidence_threshold (float): Confidence threshold for predictions (default: 0.5)
+
+    Returns:
+        dict: Metrics dictionary with accuracy, precision, recall, F1 scores
+    """
     model.eval()
     
     all_predictions = []
@@ -596,7 +712,14 @@ def calculate_training_metrics(model, train_loader, device, max_batches=None, co
 
 
 def plot_training_curves(train_losses, val_losses, save_path):
-    """Plot training and validation curves"""
+    """
+    Plot training and validation curves with improvement tracking.
+
+    Args:
+        train_losses (list): List of training losses per epoch
+        val_losses (list): List of validation losses per epoch
+        save_path (str): Path where the plot image will be saved
+    """
     plt.figure(figsize=(12, 5))
     
     # Loss curves
@@ -666,7 +789,26 @@ def create_polygon_mask(image_size, vertices):
     return mask_img
 
 def save_epoch_metrics(epoch, train_loss, train_metrics, val_loss, val_metrics, save_path, config=None, trial_number=None):
-    """Save epoch metrics to a JSON file for tracking"""
+    """
+    Save epoch metrics to a JSON file for tracking training progress.
+
+    Appends metrics for the current epoch to an existing metrics file or creates
+    a new one if it doesn't exist. Includes trial information and hyperparameters
+    for reproducibility.
+
+    Args:
+        epoch (int): Current epoch number
+        train_loss (float): Training loss for this epoch
+        train_metrics (dict): Training metrics dictionary (accuracy, precision, recall, F1)
+        val_loss (float): Validation loss for this epoch
+        val_metrics (dict): Validation metrics dictionary
+        save_path (str): Path where metrics JSON file will be saved
+        config (dict, optional): Hyperparameter configuration dictionary
+        trial_number (int, optional): Optuna trial number for this training run
+
+    Returns:
+        None: Metrics are appended to JSON file at save_path
+    """
     metrics_data = {
         'epoch': epoch,
         'train_loss': train_loss,
@@ -708,7 +850,23 @@ def save_epoch_metrics(epoch, train_loss, train_metrics, val_loss, val_metrics, 
         json.dump(data, f, indent=2)
 
 def save_trial_summary(trial_number, config, best_val_loss, total_epochs, train_losses, val_losses, save_path, confusion_matrix_path=None, stopping_reason="completed"):
-    """Save a trial summary"""
+    """
+    Save a comprehensive summary of a single optimization trial.
+
+    Saves trial metadata, hyperparameters, training history, best results, and paths
+    to generated artifacts in a structured JSON format for later analysis.
+
+    Args:
+        trial_number (int): Optuna trial number
+        config (dict): Hyperparameter configuration used in this trial
+        best_val_loss (float): Best validation loss achieved
+        total_epochs (int): Total number of epochs completed
+        train_losses (list): List of training losses per epoch
+        val_losses (list): List of validation losses per epoch
+        save_path (str): Path to save the summary JSON file
+        confusion_matrix_path (str, optional): Path to confusion matrix image
+        stopping_reason (str): Reason for stopping ("completed", "early_stopping", "pruned", "error")
+    """
     summary = {
         'trial_number': trial_number,
         'hyperparameters': config,
@@ -736,7 +894,20 @@ def save_trial_summary(trial_number, config, best_val_loss, total_epochs, train_
         json.dump(summary, f, indent=2)
 
 def generate_confusion_matrix(model, dataloader, device, class_names, save_path, confidence_threshold=0.5):
-    """Generate and save confusion matrix for the model"""
+    """
+    Generate and save confusion matrix for the model predictions.
+
+    Args:
+        model: PyTorch model to evaluate
+        dataloader: DataLoader for evaluation data
+        device: Device to run evaluation on
+        class_names (list): List of class names for labeling
+        save_path (str): Path where confusion matrix image will be saved
+        confidence_threshold (float): Confidence threshold for predictions (default: 0.5)
+
+    Returns:
+        np.ndarray or None: Confusion matrix array if successful, None if insufficient data
+    """
     model.eval()
     
     all_predictions = []
@@ -938,7 +1109,24 @@ def _create_parameter_analysis_plots(completed_trials, report_dir):
         traceback.print_exc()
 
 def create_report(study, result_folder, class_names):
-    """Create a report of all trials including confusion matrices"""
+    """
+    Create a comprehensive report of all optimization trials.
+
+    Generates detailed analysis including:
+    - Parameter importance and trends
+    - Best vs worst trial comparisons
+    - Training completion statistics
+    - Confusion matrices for top trials
+    - Markdown and JSON reports
+
+    Args:
+        study: Optuna study object with trial results
+        result_folder (str): Path to results folder
+        class_names (list): List of class names for reporting
+
+    Returns:
+        str: Path to the generated report file
+    """
     report_dir = os.path.join(result_folder, "report")
     os.makedirs(report_dir, exist_ok=True)
     

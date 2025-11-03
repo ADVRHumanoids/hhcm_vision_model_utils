@@ -1,6 +1,7 @@
 # Mask R-CNN Training and Evaluation
 
-This directory contains comprehensive tools for training and evaluating Mask R-CNN models for instance segmentation tasks. The pipeline includes automated hyperparameter optimization, comprehensive evaluation metrics, and extensive visualization capabilities.
+This directory contains comprehensive tools for training and evaluating Mask R-CNN models for instance segmentation tasks. The pipeline includes automated hyperparameter optimization using Optuna, comprehensive evaluation metrics, extensive visualization capabilities, and intelligent checkpoint management.
+
 
 ## Overview
 
@@ -15,47 +16,54 @@ Dataset Loading → Model Creation → Training with Optuna → Hyperparameter O
 ## Directory Structure
 
 ```
-mask_rcnn_training/
+mask_rcnn/
 ├── README.md                          # This file
-├── hyperparam_config.yaml             # Hyperparameter configuration file
-├── train.py                           # Main training script with Optuna optimization
+├── train_config.yaml                  # Hyperparameter and training configuration file
+├── tune.py                            # Main training script with Optuna optimization
 ├── eval.py                            # Model evaluation and testing script
 └── utils.py                           # Training utilities and helper functions
 ```
 
 ## Scripts Overview
 
-### 1. `train.py`
+### 1. tune.py
 **Purpose**: Main training script with automated hyperparameter optimization using Optuna
 
 **Key Features**:
-- **Hyperparameter Optimization**: Automated tuning using Optuna framework
-- **Multiple Optimizers**: Support for Adam and SGD
-- **Learning Rate Scheduling**: Step schedulers
-- **Data Augmentation**: Comprehensive augmentation pipeline
-- **Model Checkpointing**: Automatic saving of best models
-- **Comprehensive Logging**: Detailed training progress tracking
+- **Hyperparameter Optimization**: Automated tuning using Optuna framework with PatientPruner
+- **Top-K Checkpoint Management**: Saves only best K trials to conserve disk space
+- **Multiple Optimizers**: Support for Adam, SGD, and AdamW
+- **Learning Rate Scheduling**: Optional StepLR scheduler
+- **Data Augmentation**: Comprehensive augmentation pipeline (color jitter, flips, grayscale)
+- **Model Checkpointing**: Automatic saving of best models with CPU checkpoint fallback
+- **Comprehensive Logging**: Detailed training progress tracking with per-epoch metrics
+- **Confusion Matrices**: Automatic generation for top-performing models
+- **YOLO Dataset Support**: Can load from both LabelMe and YOLO folder structures
 
-### 2. `eval.py`
+### 2. eval.py
 **Purpose**: Evaluate trained models on test datasets
 
 **Key Features**:
-- **Multiple Metrics**: mAP, precision, recall, F1-score calculations
-- **Visual Analysis**: Prediction visualizations with confidence scores
-- **Confusion Matrices**: Class-wise performance analysis
-- **Threshold Optimization**: Find optimal confidence thresholds
+- **Interactive Visualization**: Side-by-side ground truth vs predictions with ESC key navigation
+- **Confidence Filtering**: Configurable confidence threshold for predictions
+- **Visual Analysis**: Prediction visualizations with confidence scores and bounding boxes
+- **Segmentation Mask Overlay**: Visual comparison of predicted and ground truth masks
 - **Batch Evaluation**: Process multiple test images efficiently
+- **YOLO Dataset Support**: Can evaluate on both LabelMe and YOLO folder structures
+- **Random Sampling**: Reproducible evaluation with optional seed parameter
 
-### 3. `utils.py`
+### 3. utils.py
 **Purpose**: Utility functions for training and evaluation
 
 **Key Features**:
-- **Dataset Classes**: Custom PyTorch Dataset implementations
-- **Data Loaders**: Optimized data loading with augmentation
-- **Model Creation**: Mask R-CNN model builder functions
-- **Metrics Calculation**: mAP, IoU, and other evaluation metrics
-- **Visualization Tools**: Plotting and visualization utilities
-- **Training Loops**: Modular training and validation functions
+- **Dataset Classes**: DefectDataset for LabelMe-format polygon annotations
+- **Configuration Management**: YAML-based hyperparameter loading and saving
+- **Model Creation**: Mask R-CNN model builder (versions 1 and 2)
+- **Checkpoint Management**: CPU checkpoint saving for memory efficiency
+- **Metrics Calculation**: Accuracy, precision, recall, F1-score (weighted and macro)
+- **Visualization Tools**: Training curves, confusion matrices, parameter analysis plots
+- **Training Loops**: Modular training and validation with early stopping
+- **Reporting**: Comprehensive trial summaries and study analysis
 
 ## Prerequisites
 
@@ -90,27 +98,39 @@ pip install pycocotools
 
 ```bash
 # Train with default hyperparameter configuration
-python train.py 
-    --result-folder ../training_results 
+python tune.py \
+    --result-folder ../training_results \
     --dataset-folder ../tiled_dataset
 
-# Train with custom hyperparameter file
-python train.py 
-    --result-folder ../training_results 
-    --dataset-folder ../tiled_dataset 
-    --hyperparam-config custom_hyperparams.yaml
+# Train with custom configuration file
+python tune.py \
+    --result-folder ../training_results \
+    --dataset-folder ../tiled_dataset \
+    --train-config custom_config.yaml
+
+# Show sample images before training
+python tune.py \
+    --result-folder ../training_results \
+    --dataset-folder ../tiled_dataset \
+    --show-samples
+
+# Use YOLO dataset folder structure
+python tune.py \
+    --result-folder ../training_results \
+    --dataset-folder ../yolo_dataset \
+    --yolo
 ```
 
 ### 2. Hyperparameter Optimization
 
-```bash
-# Extended hyperparameter search
-python train.py 
-    --result-folder ../training_results 
-    --dataset-folder ../tiled_dataset 
-    --num-trials 100 
-    --patience 15 
-    --save-top-k 10
+Hyperparameter settings are configured in `train_config.yaml`. Edit the file to adjust:
+
+```yaml
+training:
+  trials: 100              # Number of optimization trials
+  patience: 15             # Early stopping patience
+  save_top_k: 10           # Number of top models to save
+  num_workers: 8           # Data loading workers
 ```
 
 ### 3. Model Evaluation
@@ -134,11 +154,12 @@ python eval.py \
 The training script supports the following command line arguments:
 
 ```bash
-python train.py \
+python tune.py \
     --result-folder <path> \              # Required: Path to results folder
-    --dataset-folder <path> \             # Required: Path to dataset folder  
+    --dataset-folder <path> \             # Required: Path to dataset folder
     --train-config <path> \               # Optional: Path to training YAML config
     --show-samples \                      # Show sample images before training
+    --yolo                                # Use YOLO dataset folder structure
 ```
 
 #### Hyperparameter Configuration
@@ -150,7 +171,7 @@ Hyperparameters are managed through a YAML configuration file (`train_config.yam
 - **Easy Customization**: Modify search spaces without code changes
 - **Multiple Configurations**: Use different configs for different experiments
 
-**Default Configuration Location**: `mask_rcnn_training/train_config.yaml`
+**Default Configuration Location**: `training/segmentation/mask_rcnn/train_config.yaml`
 
 #### Hyperparameter Search Space
 
@@ -167,7 +188,7 @@ hyperparameters:
     choices: [2, 4, 8]                   # Available batch sizes
     
   optimizer:                             # Optimizer selection
-    choices: ["adam", "sgd"]                    # Available optimizers
+    choices: ["adam"]                    # Available optimizers (adam, sgd, adamw)
     
   num_epochs:                            # Training epochs
     low: 10                              # Minimum epochs
@@ -219,8 +240,9 @@ python eval.py \
     --test-folder ../test_image \         # Test dataset directory
     --threshold 0.5 \                     # Confidence threshold
     --images 50 \                         # Number of images to evaluate
-    --seed 42 \                           # Random seed
-    --model-version 1                     # Mask R-CNN Pytorch model version
+    --seed 42 \                           # Random seed (optional)
+    --model-version 1 \                   # Mask R-CNN Pytorch model version (1 or 2)
+    --yolo                                # Use YOLO dataset folder structure
 ```
 
 ## Output Files
@@ -233,23 +255,24 @@ training_results/
 │   ├── optimization_history.png            # Optuna optimization progress
 │   ├── parameter_importance.png            # Hyperparameter importance visualization
 │   └── trial_results.csv                   # Summary of all trial results
-├── report  
+├── report/
 │   ├── categorical_analysis.png            # Categorical parameter analysis
 │   ├── parameter_trends.png                # Parameter trends across trials
 │   ├── report.json                         # Detailed report in JSON format
-│   └── report.md                           # Human-readable training report
-├── search_parameters.json                  # Search space and parameter settings
+│   └── report.md                           # Human-readable training report with insights
 ├── study.pkl                               # Serialized Optuna study object
-├── top5_configurations.json                # Top 5 hyperparameter configurations
-├── trial_0/ ... trial_N/   
-│   ├── best_model_trial_X.pth              # Best model checkpoint for trial X (if available)
-│   ├── confusion_matrix_trial_X.png        # Confusion matrix visualization
-│   ├── confusion_matrix_trial_X_data.json  # Confusion matrix data
-│   ├── epoch_metrics_trial_X.json          # Per-epoch metrics for trial X
-│   ├── training_curves_trial_X.png         # Training/validation curves
-│   └── trial_X_summary.json                # Summary of trial X
+├── top5_configurations.json                # Top 5 hyperparameter configurations with ranks
+├── training_config.yaml                    # Copy of configuration used for this run
+└── trial_0/ ... trial_N/
+    ├── best_model_trial_X.pth              # Best model checkpoint (only for top K trials)
+    ├── confusion_matrix_trial_X.png        # Confusion matrix visualization
+    ├── confusion_matrix_trial_X_data.json  # Confusion matrix raw data
+    ├── epoch_metrics_trial_X.json          # Per-epoch metrics for trial X
+    ├── training_curves_trial_X.png         # Training/validation loss curves
+    └── trial_X_summary.json                # Trial summary with stopping reason
 ```
-Each trial folder contains outputs specific to that hyperparameter configuration, including metrics, model checkpoints, and visualizations.
+
+**Note**: Only the top K trials (default: 5) will have `best_model_trial_X.pth` checkpoints saved to conserve disk space. All trials retain their metrics, curves, and confusion matrices for analysis.
 
 ## Support and Resources
 

@@ -1,22 +1,34 @@
 #!/usr/bin/env python3
 """
-@brief Mask R-CNN Training Script with Hyperparameter Optimization using Optuna
-@details This script trains a Mask R-CNN model on a custom dataset with bounding box and segmentation mask annotations.
-    It includes data loading, augmentation, model creation, training, validation, and hyperparameter optimization using Optuna.
-    It also generates a comprehensive report with training metrics and confusion matrices.
-    
-    Hyperparameters are loaded from hyperparam_config.yaml by default, or from a custom YAML file specified
-    with --hyperparam-config. This allows for easy configuration management and reproducible experiments.
-    
-    Arguments:
-    --result-folder: Path to the folder where results will be saved.
-    --dataset-folder: Path to the folder containing the dataset in LabelMe format.
-    --hyperparam-config: Path to hyperparameter configuration YAML file (optional).
-    --show-samples: Flag to display sample images with annotations before training.
+Mask R-CNN Training Script with Hyperparameter Optimization using Optuna.
 
-@note The dataset should be in LabelMe format (JSON files with polygon annotations).
-@note The script supports early stopping and saves the best model checkpoints based on validation loss.
-@note Hyperparameters can be customized by modifying hyperparam_config.yaml or providing a custom config file.
+This script trains a Mask R-CNN model on a custom dataset with bounding box and segmentation
+mask annotations. It includes data loading, augmentation, model creation, training, validation,
+and hyperparameter optimization using Optuna with PatientPruner for efficient search.
+
+Features:
+- Automated hyperparameter optimization using Optuna
+- Early stopping with patience-based pruning
+- Comprehensive metric tracking (accuracy, precision, recall, F1)
+- Confusion matrix generation for best models
+- Top-K checkpoint management to save disk space
+- Extensive reporting with training curves and parameter analysis
+- Support for both standard and YOLO dataset structures
+
+Modified by: Alessio Lovato, 03-11-2025
+
+Arguments:
+    --result-folder: Path to the folder where results will be saved
+    --dataset-folder: Path to the folder containing the dataset in LabelMe format
+    --train-config: Path to training configuration YAML file (optional)
+    --show-samples: Flag to display sample images with annotations before training
+    --yolo: Use YOLO dataset folder structure (flag)
+
+Notes:
+    - The dataset should be in LabelMe format (JSON files with polygon annotations)
+    - The script supports early stopping and saves the best model checkpoints based on validation loss
+    - Hyperparameters can be customized by modifying train_config.yaml or providing a custom config file
+    - Only top K models (default 5) are saved to disk to conserve space
 """
 # Import Python Standard Library dependencies
 import os
@@ -92,6 +104,20 @@ from .utils import (
 )
 
 def main():
+    """
+    Main training function orchestrating the complete hyperparameter optimization workflow.
+
+    Executes the following pipeline:
+    1. Parse command line arguments and load configuration
+    2. Load and split dataset into train/validation sets
+    3. Create Optuna study with pruning strategy
+    4. Run hyperparameter optimization trials
+    5. Analyze and save results including top configurations
+    6. Generate comprehensive report with confusion matrices
+
+    Returns:
+        None: Saves all results, models, and reports to result folder
+    """
     
     
     parser = argparse.ArgumentParser(description="Mask R-CNN Training")
@@ -573,17 +599,19 @@ def main():
 def is_top_trial(current_loss, result_folder, current_trial_number, top_k=5):
     """
     Check if the current trial should save its model checkpoint based on performance ranking.
-    Only save checkpoints for top K performing trials to save disk space.
-    Also cleans up checkpoints (but not confusion matrices) for trials that fall out of top K.
+
+    Only saves checkpoints for the top K performing trials to conserve disk space.
+    Automatically cleans up checkpoints for trials that fall out of the top K rankings,
+    while preserving confusion matrices and metrics for analysis.
 
     Args:
         current_loss (float): Current trial's best validation loss
         result_folder (str): Path to results folder to check existing trials
         current_trial_number (int): Current trial number
-        top_k (int): Number of top trials to keep model checkpoints for
-    
+        top_k (int): Number of top trials to keep model checkpoints for (default: 5)
+
     Returns:
-        bool: True if this trial should save checkpoint and confusion matrix, False otherwise
+        bool: True if this trial should save checkpoint, False otherwise
     """
     try:
         # If current loss is inf, don't save
@@ -658,20 +686,35 @@ def objective(trial, train_dataset, valid_dataset,
               result_folder, param_space, num_classes, class_names, num_workers=4,
               patience=5, top_k=5, model_version=1):
     """
-    Modular Optuna objective function.
-    
-    Parameters:
-        trial: optuna trial object
-        model: model to be trained and validated
-        train_dataset, val_dataset: datasets for training and validation
-        result_folder: folder path to save the results
-        param_space: dict of hyperparameters configuration
-        num_classes: number of classes in the dataset (including background)
-        class_names: list of class names for confusion matrix
-        num_workers: number of workers for data loading
-        patience: patience for early stopping
-        top_k: number of top trials to save checkpoints for
-        model_version: version of the model to use ('maskrcnn_resnet50_fpn' or 'maskrcnn_resnet50_fpn_v2')
+    Optuna objective function for hyperparameter optimization of Mask R-CNN.
+
+    Executes a complete training run with trial-suggested hyperparameters, including:
+    - Model creation and initialization
+    - Training loop with gradient clipping and scheduling
+    - Validation with comprehensive metrics
+    - Early stopping based on patience
+    - Checkpoint management (top-K only)
+    - Confusion matrix generation for best models
+    - Graceful error handling with partial checkpoints
+
+    Args:
+        trial: Optuna trial object for hyperparameter suggestions
+        train_dataset: PyTorch Dataset for training
+        valid_dataset: PyTorch Dataset for validation
+        result_folder (str): Folder path to save trial results
+        param_space (dict): Dictionary defining hyperparameter search space
+        num_classes (int): Number of classes including background
+        class_names (list): List of class names for confusion matrix
+        num_workers (int): Number of workers for data loading (default: 4)
+        patience (int): Early stopping patience in epochs (default: 5)
+        top_k (int): Number of top trials to save checkpoints for (default: 5)
+        model_version (int): Model version (1 or 2, default: 1)
+
+    Returns:
+        float: Best validation loss achieved (or sentinel value on error)
+
+    Raises:
+        optuna.TrialPruned: When trial is pruned by Optuna or invalid loss detected
     """
 
     # --- Sample hyperparameters ---

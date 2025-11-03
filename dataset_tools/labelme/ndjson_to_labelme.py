@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 """
-Convert Labelbox NDJSON annotations to LabelMe JSON format with line_color.
-@brief Converts NDJSON annotations from Labelbox to LabelMe JSON format.
-@details This script downloads images and masks, converts them to polygons,
-         and saves them in the LabelMe JSON format with specified line colors.
+Convert Labelbox NDJSON annotations to LabelMe JSON format.
+
+Downloads images and segmentation masks from Labelbox, converts binary masks to
+polygon contours using OpenCV, and saves them in LabelMe JSON format with preserved
+line and fill colors. Useful for exporting Labelbox annotations to a format compatible
+with LabelMe and other annotation tools.
 
 Arguments:
---config: Path to config YAML file containing the API key.
---ndjson: Path to the NDJSON file with annotations.
---image_folder: Folder to save images and JSON files.
---save_masks: Flag to save individual masks as PNG files in the image folder.
+    --config: Path to YAML config file containing Labelbox api_key
+    --ndjson: Path to Labelbox NDJSON export file
+    --image-folder: Output folder for images and JSON files
+    --save-masks: Flag to save individual mask PNG files (default: False)
+
+Requirements:
+    pip install ndjson requests pyyaml opencv-python numpy
+
+Author: Alessio Lovato
 """
 import os
 import cv2

@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
 """
-Display images annotated in LabelMe format.
-@brief Displays images with annotations from LabelMe JSON files.
-@details This script reads LabelMe JSON files, loads the corresponding images,
-         and displays the images with drawn annotations.
+Interactive viewer for LabelMe annotated datasets.
 
-@Note Supported image formats: .jpg, .jpeg, .png
+Displays images with annotations from LabelMe JSON files in an interactive OpenCV window.
+Supports polygon and rectangle annotations with transparency, colored overlays based on
+LabelMe's line_color and fill_color fields, and keyboard navigation for reviewing datasets.
 
 Arguments:
-    --folder: Path to the folder containing LabelMe JSON files and images.
-    --images: Number of images to display (default: 0 = all).
+    --folder: Path to folder containing LabelMe JSON files and images
+    --images: Number of images to display (default: 0 = all)
+
+Supported Image Formats:
+    .jpg, .jpeg, .png
+
+Controls:
+    ← / Q: Previous image
+    → / E: Next image
+    ESC: Exit viewer
+    Any other key: Next image
+
+Author: Alessio Lovato
 """
 
 import os

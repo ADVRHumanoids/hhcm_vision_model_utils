@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
 """
-Tile Grid Viewer for LabelMe Tiled Dataset
+Interactive tile grid viewer for LabelMe tiled datasets.
 
-- Input: folder with tiles, tiling log file
-- Reconstructs the image grid from tiles, overlays tile numbers and annotation masks
-- Displays the base name above the grid
-- Maximizes the OpenCV window
-- Allows interactive selection and deletion of tiles
-- Logs deleted files
+Reconstructs and displays original image grids from tiled datasets, showing tile numbers
+and annotation masks overlaid. Allows interactive selection and deletion of problematic
+tiles with logging. Useful for quality control after tiling augmentation.
+
+Arguments:
+    --tile-folder: Path to folder containing tiled images
+    --tiling-log: Path to tiling log file (created by tiling_augmentation.py)
+
+Controls:
+    Left Click: Toggle tile selection for deletion
+    D: Delete selected tiles and their JSON files
+    N / Right Arrow: Next base image
+    P / Left Arrow: Previous base image
+    Q / ESC: Quit viewer
+
+Author: Alessio Lovato
 """
 import os
 import cv2

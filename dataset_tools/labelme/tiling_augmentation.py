@@ -1,20 +1,30 @@
 #!/usr/bin/env python3
 """
-Tiling Augmentation for LabelMe Dataset
-@brief Splits large images into smaller tiles with overlapping regions and preserves annotations.
-@details This script takes a LabelMe dataset and creates a tiled version where each large image
-         is split into smaller overlapping tiles. Annotations are clipped and translated to match
-         the new tile coordinates. Useful for training on smaller image patches while maintaining
-         annotation accuracy.
+Tiling augmentation for LabelMe datasets with annotation preservation.
+
+Splits large images into smaller overlapping tiles while accurately clipping and transforming
+polygon annotations to match new tile coordinates. Uses Shapely for robust geometric operations
+including polygon intersection, validation, and repair.
 
 Arguments:
     --input-dir: Path to input LabelMe dataset folder
     --output-dir: Path to output folder for tiled dataset
-    --width: Width of each tile in pixels
-    --height: Height of each tile in pixels
-    --overlap: Overlap percentage between tiles (0.0 to 1.0)
-    --zoom-out: If set, create zoomed-out versions of images
-    --pad-border: If set, pad border tiles instead of overlapping them
+    --width: Width of each tile in pixels (default: 640)
+    --height: Height of each tile in pixels (default: 640)
+    --overlap: Overlap percentage between tiles 0.0-1.0 (default: 0.0)
+    --zoom-out: Create zoomed-out full-image versions (flag)
+    --pad-border: Pad border tiles instead of overlapping (flag)
+
+Requirements:
+    pip install shapely opencv-python numpy colorama
+
+Output:
+    - Tiled images: {base_name}_{tile_number}.jpg
+    - Tile annotations: {base_name}_{tile_number}.json
+    - Tiling log: tiling_log.txt (for reconstruction)
+    - Scaled versions (if --zoom-out): {base_name}_scaled_full.jpg
+
+Author: Alessio Lovato
 """
 
 import os

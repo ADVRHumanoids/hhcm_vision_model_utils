@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 """
-Check for missing JPEG/JSON pairs in a folder.
+Check for missing JPEG/JSON pairs in LabelMe dataset folders.
 
-- Scans a folder for .jpg/.jpeg and .json files
-- Reports files missing their pair (e.g., .jpg without .json or vice versa)
+Scans a folder for image files (.jpg/.jpeg) and their corresponding LabelMe JSON
+annotation files, reporting any mismatches. Useful for validating dataset integrity
+before training or after dataset operations.
+
+Arguments:
+    --folder: Path to folder containing LabelMe dataset
+
+Author: Alessio Lovato
 """
 import os
 import argparse

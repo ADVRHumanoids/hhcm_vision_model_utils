@@ -288,8 +288,7 @@ python polygon_filter_gui.py --dataset /path/to/dataset/dataset.yaml --min-point
 
 **Purpose**: Interactive command-line tool for manual dataset review and filtering
 
-This tool provides a streamlined OpenCV-based interface for quick manual review 
-with minimal controls.
+This tool provides a streamlined OpenCV-based interface for quick manual review of the annotated images in the dataset, allowing to keep or delete them.
 
 **Key Features**:
 - **Visual Review**: Full-screen display of images with annotations overlaid
@@ -471,3 +470,4 @@ pip install labelbox
 - **YOLO Documentation**: [https://docs.ultralytics.com/](https://docs.ultralytics.com/)
 - **COCO Dataset**: [https://cocodataset.org/](https://cocodataset.org/)
 - **Labelbox**: [https://labelbox.com/docs/](https://labelbox.com/docs/)
+- **LabelMe to YOLO Conversion**: [https://pypi.org/project/labelme2yolo/](https://pypi.org/project/labelme2yolo/)

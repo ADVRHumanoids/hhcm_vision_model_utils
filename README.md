@@ -1,53 +1,172 @@
-# hhcm_yolo_training
+# HHCM Vision Model Workbench
 
-Scripts to train YOLO and not only models with datasets. The repo also include other scripts to manipulate COCO and YOLO dataset.
+A comprehensive toolkit for computer vision model development, specializing in object detection and instance segmentation. This workbench provides end-to-end workflows from dataset preparation through model training, with support for multiple frameworks including YOLO and Mask RCNN.
 
-## Training Non-YOLO models
+## Overview
 
-Taken from https://github.com/pytorch/vision/tree/main
+This repository contains production-ready tools for:
+- **Dataset Preparation**: Format conversion, augmentation, and quality control
+- **Model Training**: State-of-the-art detection and segmentation models
+- **Hyperparameter Optimization**: Automated tuning with Ray Tune and Optuna
+- **Visualization**: Interactive tools for dataset exploration and debugging
 
-- Download files from https://github.com/pytorch/vision/tree/main/references/detection and put them in this folder, inside a "detection" folder. 
-  They will be used by `TrainModel.py`
+## Quick Start
 
-- Run `TrainModel.py`. Examples about how to run are given in TrainMain.py
+### Installation
 
-## Training YOLOv5 models
+```bash
+# Clone repository
+git clone <repository-url>
+cd hhcm-vision-model-workbench
 
-Taken from https://github.com/ultralytics/yolov5/
+# Install core dependencies
+pip install torch torchvision opencv-python numpy pyyaml matplotlib pillow
 
-You can either follow the https://github.com/ultralytics/yolov5/ tutorial (Training part)
+# Install framework-specific dependencies (choose based on your needs)
+pip install ultralytics ray[tune] optuna tensorboard  # For YOLO
+pip install detectron2 optuna  # For Mask R-CNN
+pip install labelme2yolo shapely ndjson requests  # For dataset tools
+```
 
-OR, clone that repo somewhere and use the `TrainYolo.py`. Example about how to use the MainYolo are in `TrainMain.py`
+### Basic Workflow
 
-## Training YOLOv11
-*TrainYolov11.py*, check arguments in the file.
+```bash
+# 1. Prepare dataset (Labelbox → YOLO)
+cd dataset_tools/labelme/
+python ndjson_to_labelme.py --config config.yaml --ndjson export.ndjson --image-folder dataset/
 
-## COCO-YOLO utils
-### COCO-to-YOLO
-```extractcocoexportyolo.py``` is a python script to easily download cocosubsets. At the beginning of the file you can find its arguments to set. Pretty rough at this stage, poorly written, and arguments are hardcoded, but it worked for me so far
+pip install labelme2yolo
+labelme2yolo --json_dir dataset/ --val_size 0.2 --output_format polygon --segmentation polygon
 
-#### Why
-Ever wanted to download only a subset of coco to be used for YOLO? With only certain classes? And with a balanced (more or less) number of sample for each category? This is the script for you. I made this because 
-[fiftyone](https://docs.voxel51.com/) was limited in this.  
-In brief, it downloads coco images and labes, convert them to yolo format and store it in your pc, ready to be used.
+# 2. Train YOLO segmentation model
+cd ../../training/segmentation/yolo/
+python train_yolo11_seg.py --data path/to/data.yaml --model yolo11m-seg.pt --epochs 100
+```
 
-#### How
-- `cocoTrain` and `cocoVal` paths to the instances_trainXXX.json and instances_val2017.json, to be downloaded in advance from YOLO website
-- The script downloads images into `img_folder`. 
-- Inside `output_name`, dataset is created, containing images and label. Images are first downloaded into `img_folder` and then copied into `output_name`. In such a way, keeping the `img_folder`, multiple subsets can be creted running multiple time the script, avoiding to download a particular image multiple time, but only once when necessary storing it in the general `img_folder`, saving time.
-- `model_type` det or seg, the format of the labels. While det info should be always present in the COCO dataset, seg may be not. If seg is requested, det bbox info will be used as a segmentation label.
-  - det: label, center-x, center-y, width, height
-  - seg: label, x1, y1, ..., xn, yn
-- `N_sample_train` and `N_sample_valid`. YOLO dataset has a big number of "person" instances with respect to other categories. So it may end up training your network unbalancing the categories. This args tell how many images do you want *for each category*. The script also assures that training and validation images are always different.
-  - Note 1: Take care that for certain categories, images may be not enough, hence a smaller number will be available. At least, the script will try to take from the YOLO trainining images some to reach the requested `N_sample_valid`, if not enough.
-  - Note 2: for each category, it is assured that AT LEAST this number of occurencies exist (because on same image multiple categories can be present, and also multiple occurencies of same category).
-- `my_categories` categories you want, with id that will be used as reference for each of them. Ids must one after the other (no holes), so original YOLO IDs will be modified if you "skip" some category.  
+## Repository Structure
 
-### Rename ID of labels (yolo format)
-```renameIdClassYoloLabel.py``` simple raw script to rename the id of all the labels in a given dataset.
+```
+hhcm-vision-model-workbench/
+├── training/              # Model training pipelines
+│   ├── detection/         # Object detection models
+│   │   └── multimodel/    # Multi-model comparison (Faster R-CNN, RetinaNet, SSD)
+│   └── segmentation/      # Instance segmentation models
+│       ├── yolo/          # YOLO11-seg training with Ray Tune
+│       └── mask_rcnn/     # Mask R-CNN with Detectron2
+├── dataset_tools/         # Dataset preparation and conversion
+│   ├── yolo/              # YOLO format tools (9 scripts)
+│   ├── labelme/           # LabelMe format tools (5 scripts)
+│   ├── tensorflow/        # TFRecord tools (2 scripts)
+│   └── preprocessing/     # Image enhancement (1 script)
+├── utils/                 # Utility scripts
+│   ├── clearCuda.py       # GPU memory management
+│   └── modelInfo.py       # Model inspection
+├── notebooks/             # Jupyter notebooks
+│   ├── coco_viewer.ipynb                      # COCO dataset visualization
+│   ├── ExtractCOCOExportYOLOSegmentation.ipynb  # COCO subset extraction
+│   └── fiftyOneGetDataset.ipynb                 # FiftyOne dataset downloader
+└── legacy/                # Deprecated code (YOLOv5)
+```
 
-### Visualize mask-bboxes
-```visualize_masks.py```. Just set the image and label path. Its is fine with both YOLO det and YOLO seg formats
+## Features
 
-### Convert YOLO segmentation format to YOLO detection format
-```convert_yolo_seg_to_det.py``` one-shot chatgpt script to convert the segmentation mask into a detection bounding box, for all label files in a given folder. (remember to do it for both the train and valid (and test eventually) folders).
+### Training Frameworks
+
+#### YOLO Segmentation
+- **Framework**: Ultralytics YOLO11-seg
+- **Speed**: 30-60 FPS inference
+- **Best For**: Production deployment, real-time applications
+- **Features**: Multi-GPU, AMP, Ray Tune optimization
+- [Documentation](training/segmentation/yolo/)
+
+#### Mask R-CNN
+- **Framework**: Detectron2
+- **Accuracy**: State-of-the-art precision
+- **Best For**: Research, complex scenes
+- **Features**: Optuna tuning, top-K checkpointing
+- [Documentation](training/segmentation/mask_rcnn/)
+
+#### Multi-Model Detection
+- **Frameworks**: Faster R-CNN, RetinaNet, SSD
+- **Purpose**: Architecture comparison and benchmarking
+- [Documentation](training/detection/multimodel/)
+
+### Dataset Tools
+
+#### Format Conversion
+| From | To | Tool |
+|------|-----|------|
+| Labelbox NDJSON | LabelMe | `dataset_tools/labelme/ndjson_to_labelme.py` |
+| LabelMe | YOLO | `labelme2yolo` (pip package) |
+| COCO | YOLO | `dataset_tools/yolo/extract_coco_export_yolo.py` |
+| Labelbox NDJSON | TFRecord | `dataset_tools/tensorflow/ndjson_to_tfrecord.py` |
+
+#### Quality Control Tools
+- **Interactive Annotation Filtering**: `dataset_tools/yolo/polygon_filter_gui.py`
+- **Dataset Visualization**: `dataset_tools/yolo/display_dataset_gui.py`
+- **Statistics Analysis**: `dataset_tools/yolo/stats_yolo_dataset.py`
+- **Class Balancing**: `dataset_tools/yolo/balance_dataset.py`
+
+#### Augmentation
+- **Tiling with Annotation Preservation**: `dataset_tools/labelme/tiling_augmentation.py`
+- **Image Enhancement**: `dataset_tools/preprocessing/bw_converter.py`
+
+
+
+## Dependencies
+
+### Core Requirements
+```bash
+pip install torch torchvision
+pip install opencv-python numpy pyyaml
+pip install matplotlib pillow
+```
+
+### Framework-Specific
+
+**YOLO**:
+```bash
+pip install ultralytics>=8.0.0
+pip install ray[tune] optuna
+pip install tensorboard
+```
+
+**Detectron2**:
+```bash
+pip install detectron2
+pip install optuna
+```
+
+**Dataset Tools**:
+```bash
+pip install labelme2yolo  # LabelMe → YOLO conversion
+pip install shapely ndjson requests  # LabelMe tools
+pip install tensorflow pycocotools  # TFRecord tools
+pip install fiftyone  # Dataset downloading
+```
+
+## Documentation
+
+Each directory contains comprehensive README.md files:
+
+- [Training Documentation](training/) - Model training guides
+  - [YOLO Segmentation](training/segmentation/yolo/)
+  - [Mask R-CNN](training/segmentation/mask_rcnn/)
+  - [Multi-Model Detection](training/detection/multimodel/)
+- [Dataset Tools](dataset_tools/) - Conversion and preparation
+  - [YOLO Tools](dataset_tools/yolo/)
+  - [LabelMe Tools](dataset_tools/labelme/)
+  - [TensorFlow Tools](dataset_tools/tensorflow/)
+  - [Preprocessing](dataset_tools/preprocessing/)
+- [Utilities](utils/) - Helper scripts
+- [Notebooks](notebooks/) - Interactive examples
+- [Legacy](legacy/) - Deprecated code (YOLOv5)
+
+## Resources
+
+- **Ultralytics YOLO**: [https://docs.ultralytics.com/](https://docs.ultralytics.com/)
+- **Detectron2**: [https://detectron2.readthedocs.io/](https://detectron2.readthedocs.io/)
+- **COCO Dataset**: [https://cocodataset.org/](https://cocodataset.org/)
+- **Labelbox**: [https://labelbox.com/](https://labelbox.com/)
+- **LabelMe**: [https://github.com/wkentaro/labelme](https://github.com/wkentaro/labelme)
+- **labelme2yolo**: [https://pypi.org/project/labelme2yolo/](https://pypi.org/project/labelme2yolo/)

@@ -5,3 +5,9 @@
 *.vscode
 runs
 *.egg-info
+
+# Configuration file 
+config.yaml
+
+# Python
+__pycache__

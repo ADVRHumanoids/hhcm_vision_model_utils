@@ -12,7 +12,7 @@ Purpose:
     including allocated memory, reserved memory, and fragmentation info.
 
 Usage:
-    python clearCuda.py
+    python3 clearCuda.py
 
 Output:
     Prints complete CUDA memory summary showing:

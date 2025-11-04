@@ -48,23 +48,23 @@ pip install opencv-python numpy
 
 ```bash
 # Preview images with automatic adjustment (no saving)
-python bw_converter.py --input raw_images/ --output processed/
+python3 bw_converter.py --input raw_images/ --output processed/
 
 # Batch process and save with default settings
-python bw_converter.py \
+python3 bw_converter.py \
     --input raw_images/ \
     --output processed/ \
     --save
 
 # Save grayscale only without contrast adjustment
-python bw_converter.py \
+python3 bw_converter.py \
     --input raw_images/ \
     --output grayscale_only/ \
     --save \
     --save-gray
 
 # Custom histogram clipping for more aggressive enhancement
-python bw_converter.py \
+python3 bw_converter.py \
     --input low_contrast_images/ \
     --output enhanced/ \
     --save \
@@ -72,9 +72,9 @@ python bw_converter.py \
 
 # Preview first, then save after confirming quality
 # Step 1: Preview (press SPACE to browse)
-python bw_converter.py --input raw/ --output processed/
+python3 bw_converter.py --input raw/ --output processed/
 # Step 2: Save after confirming
-python bw_converter.py --input raw/ --output processed/ --save
+python3 bw_converter.py --input raw/ --output processed/ --save
 ```
 
 

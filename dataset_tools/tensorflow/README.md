@@ -30,14 +30,14 @@ pip install tensorflow requests ndjson pyyaml opencv-python numpy
 **Usage**:
 ```bash
 # Basic conversion with default settings
-python ndjson_to_tfrecord.py \\
+python3 ndjson_to_tfrecord.py \\
     --config config.yaml \\
     --ndjson labelbox_export.ndjson \\
     --image_folder images \\
     --tfrecord output.tfrecord
 
 # With specific paths
-python ndjson_to_tfrecord.py \\
+python3 ndjson_to_tfrecord.py \\
     --config /path/to/config.yaml \\
     --ndjson /path/to/export.ndjson \\
     --image_folder /path/to/images \\
@@ -123,13 +123,13 @@ pip install tensorflow matplotlib pillow numpy
 **Usage**:
 ```bash
 # Visualize all records
-python debug_tfrecord.py dataset.tfrecord
+python3 debug_tfrecord.py dataset.tfrecord
 
 # Visualize first 5 records only
-python debug_tfrecord.py dataset.tfrecord --max-records 5
+python3 debug_tfrecord.py dataset.tfrecord --max-records 5
 
 # Visualize specific TFRecord
-python debug_tfrecord.py /path/to/file.tfrecord --max-records 10
+python3 debug_tfrecord.py /path/to/file.tfrecord --max-records 10
 ```
 
 **Controls**:

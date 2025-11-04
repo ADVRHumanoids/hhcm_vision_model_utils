@@ -29,13 +29,13 @@ pip install ndjson requests pyyaml opencv-python numpy
 **Usage**:
 ```bash
 # Basic conversion with config file
-python ndjson_to_labelme.py \\
+python3 ndjson_to_labelme.py \\
     --config config.yaml \\
     --ndjson export.ndjson \\
     --image-folder output/labelme_dataset
 
 # Save mask PNG files for inspection
-python ndjson_to_labelme.py \\
+python3 ndjson_to_labelme.py \\
     --config config.yaml \\
     --ndjson export.ndjson \\
     --image-folder output/labelme_dataset \\
@@ -81,14 +81,14 @@ pip install shapely opencv-python numpy colorama
 **Usage**:
 ```bash
 # Basic tiling (640x640, no overlap)
-python tiling_augmentation.py \\
+python3 tiling_augmentation.py \\
     --input-dir labelme_dataset \\
     --output-dir tiled_dataset \\
     --width 640 \\
     --height 640
 
 # With 20% overlap
-python tiling_augmentation.py \\
+python3 tiling_augmentation.py \\
     --input-dir labelme_dataset \\
     --output-dir tiled_dataset \\
     --width 640 \\
@@ -96,7 +96,7 @@ python tiling_augmentation.py \\
     --overlap 0.2
 
 # With border padding instead of overlap
-python tiling_augmentation.py \\
+python3 tiling_augmentation.py \\
     --input-dir labelme_dataset \\
     --output-dir tiled_dataset \\
     --width 640 \\
@@ -104,7 +104,7 @@ python tiling_augmentation.py \\
     --pad-border
 
 # Include zoomed-out full images
-python tiling_augmentation.py \\
+python3 tiling_augmentation.py \\
     --input-dir labelme_dataset \\
     --output-dir tiled_dataset \\
     --width 640 \\
@@ -160,7 +160,7 @@ image002: grid 2x2, tile 640x640, orig 1280x720
 
 **Usage**:
 ```bash
-python tile_grid_viewer.py \\
+python3 tile_grid_viewer.py \\
     --tile-folder tiled_dataset \\
     --tiling-log tiled_dataset/tiling_log.txt
 ```
@@ -200,13 +200,13 @@ python tile_grid_viewer.py \\
 **Usage**:
 ```bash
 # View all images in folder
-python display_dataset.py --folder labelme_dataset
+python3 display_dataset.py --folder labelme_dataset
 
 # View first 50 images
-python display_dataset.py --folder labelme_dataset --images 50
+python3 display_dataset.py --folder labelme_dataset --images 50
 
 # View specific dataset
-python display_dataset.py --folder /path/to/dataset --images 100
+python3 display_dataset.py --folder /path/to/dataset --images 100
 ```
 
 **Controls**:
@@ -240,11 +240,11 @@ python display_dataset.py --folder /path/to/dataset --images 100
 **Usage**:
 ```bash
 # Check folder
-python check_missing_pairs.py --folder labelme_dataset
+python3 check_missing_pairs.py --folder labelme_dataset
 
 # Check multiple folders
-python check_missing_pairs.py --folder dataset/train
-python check_missing_pairs.py --folder dataset/val
+python3 check_missing_pairs.py --folder dataset/train
+python3 check_missing_pairs.py --folder dataset/val
 ```
 
 **Output Example**:

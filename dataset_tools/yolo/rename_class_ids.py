@@ -11,7 +11,7 @@ Author: tori
 Usage:
     Edit the label_dirs list with paths to your label folders
     Edit old_class_id and new_class_id variables
-    Run: python rename_class_ids.py
+    Run: python3 rename_class_ids.py
 """
 
 import os

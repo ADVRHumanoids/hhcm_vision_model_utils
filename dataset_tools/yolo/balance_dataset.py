@@ -355,9 +355,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python balance_dataset.py                    # Use default ratio 2.0
-  python balance_dataset.py --ratio 1.5        # Target ratio 1.5:1
-  python balance_dataset.py --ratio 3.0 /path  # Custom ratio and path
+  python3 balance_dataset.py                    # Use default ratio 2.0
+  python3 balance_dataset.py --ratio 1.5        # Target ratio 1.5:1
+  python3 balance_dataset.py --ratio 3.0 /path  # Custom ratio and path
   
 Note: Lower ratio = more balanced but more files removed
       Higher ratio = less balanced but fewer files removed
@@ -430,7 +430,7 @@ Note: Lower ratio = more balanced but more files removed
         print(f"\n" + "=" * 80)
         print(f"✓ Dataset balanced successfully!")
         print(f"=" * 80)
-        print(f"\n💡 Tip: Run 'python analyze_dataset_balance.py' to verify the new balance.")
+        print(f"\n💡 Tip: Run 'python3 analyze_dataset_balance.py' to verify the new balance.")
     else:
         print(f"\n❌ Operation cancelled. No changes made.")
         sys.exit(0)

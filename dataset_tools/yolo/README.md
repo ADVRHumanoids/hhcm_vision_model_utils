@@ -27,7 +27,7 @@ N_sample_train = 500                           # Min instances per class
 N_sample_valid = 110
 model_type = "seg"                            # "det" or "seg"
 
-python extract_coco_export_yolo.py
+python3 extract_coco_export_yolo.py
 ```
 
 **Output Structure**:
@@ -55,7 +55,7 @@ output_dir/
 
 **Usage**:
 ```bash
-python convert_seg_to_det.py
+python3 convert_seg_to_det.py
 
 # Edit paths in script:
 input_folder = "/path/to/seg/labels"
@@ -93,7 +93,7 @@ label_dirs = [
 old_class_id = '0'
 new_class_id = 19
 
-python rename_class_ids.py
+python3 rename_class_ids.py
 ```
 
 ---
@@ -119,13 +119,13 @@ Positional:
 **Usage Examples**:
 ```bash
 # Analyze current directory (looks for dataset.yaml)
-python analyze_balance.py
+python3 analyze_balance.py
 
 # Analyze specific dataset
-python analyze_balance.py /path/to/dataset
+python3 analyze_balance.py /path/to/dataset
 
 # Analyze and save output to file
-python analyze_balance.py > balance_report.txt
+python3 analyze_balance.py > balance_report.txt
 ```
 
 **Output Example**:
@@ -204,13 +204,13 @@ Options:
 **Usage Examples**:
 ```bash
 # Use default 2.0:1 ratio in current directory
-python balance_dataset.py
+python3 balance_dataset.py
 
 # Custom ratio and path
-python balance_dataset.py /path/to/dataset --ratio 1.5
+python3 balance_dataset.py /path/to/dataset --ratio 1.5
 
 # More aggressive balancing (close to 1:1)
-python balance_dataset.py --ratio 1.2
+python3 balance_dataset.py --ratio 1.2
 ```
 
 ---
@@ -270,16 +270,16 @@ Optional:
 **Usage Examples**:
 ```bash
 # Default threshold of 15 points
-python polygon_filter_gui.py --dataset dataset.yaml
+python3 polygon_filter_gui.py --dataset dataset.yaml
 
 # Stricter filtering (20 points minimum)
-python polygon_filter_gui.py --dataset dataset.yaml --min-points 20
+python3 polygon_filter_gui.py --dataset dataset.yaml --min-points 20
 
 # More lenient (10 points minimum)
-python polygon_filter_gui.py --dataset dataset.yaml --min-points 10
+python3 polygon_filter_gui.py --dataset dataset.yaml --min-points 10
 
 # Process specific dataset
-python polygon_filter_gui.py --dataset /path/to/dataset/dataset.yaml --min-points 15
+python3 polygon_filter_gui.py --dataset /path/to/dataset/dataset.yaml --min-points 15
 ```
 
 ---
@@ -326,16 +326,16 @@ Optional:
 **Usage Examples**:
 ```bash
 # Review all splits in current directory
-python manual_filter.py --dataset dataset.yaml
+python3 manual_filter.py --dataset dataset.yaml
 
 # Review only training set
-python manual_filter.py --dataset dataset.yaml --splits train
+python3 manual_filter.py --dataset dataset.yaml --splits train
 
 # Review train and validation sets
-python manual_filter.py --dataset dataset.yaml --splits train val
+python3 manual_filter.py --dataset dataset.yaml --splits train val
 
 # Review specific dataset
-python manual_filter.py --dataset /path/to/dataset/dataset.yaml --splits train
+python3 manual_filter.py --dataset /path/to/dataset/dataset.yaml --splits train
 ```
 
 **When to Use This Tool**:
@@ -408,14 +408,14 @@ Class 4: Magenta     Class 9: Lime
 **Usage Examples**:
 ```bash
 # Basic usage - current directory
-python label_editor_gui.py --dataset dataset.yaml
+python3 label_editor_gui.py --dataset dataset.yaml
 
 # Specific dataset path
-python label_editor_gui.py --dataset /path/to/dataset/dataset.yaml
+python3 label_editor_gui.py --dataset /path/to/dataset/dataset.yaml
 
 # Over SSH with X11 forwarding
 ssh -X user@host
-python label_editor_gui.py --dataset dataset.yaml
+python3 label_editor_gui.py --dataset dataset.yaml
 ```
 
 ---
@@ -437,7 +437,7 @@ pip install labelbox pillow
 
 **Usage**:
 ```bash
-python upload_to_labelbox.py \
+python3 upload_to_labelbox.py \
     --dataset dataset.yaml \
     --api-key YOUR_LABELBOX_API_KEY \
     --project-name "Dataset Review" \

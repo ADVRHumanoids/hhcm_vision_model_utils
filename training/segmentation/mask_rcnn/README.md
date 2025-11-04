@@ -98,24 +98,24 @@ pip install pycocotools
 
 ```bash
 # Train with default hyperparameter configuration
-python tune.py \
+python3 tune.py \
     --result-folder ../training_results \
     --dataset-folder ../tiled_dataset
 
 # Train with custom configuration file
-python tune.py \
+python3 tune.py \
     --result-folder ../training_results \
     --dataset-folder ../tiled_dataset \
     --train-config custom_config.yaml
 
 # Show sample images before training
-python tune.py \
+python3 tune.py \
     --result-folder ../training_results \
     --dataset-folder ../tiled_dataset \
     --show-samples
 
 # Use YOLO dataset folder structure
-python tune.py \
+python3 tune.py \
     --result-folder ../training_results \
     --dataset-folder ../yolo_dataset \
     --yolo
@@ -137,7 +137,7 @@ training:
 
 ```bash
 # Evaluate best model
-python eval.py \
+python3 eval.py \
     --checkpoint checkpoints/best_model.pth \
     --test-folder ../test_image \
     --threshold 0.5 \
@@ -154,7 +154,7 @@ python eval.py \
 The training script supports the following command line arguments:
 
 ```bash
-python tune.py \
+python3 tune.py \
     --result-folder <path> \              # Required: Path to results folder
     --dataset-folder <path> \             # Required: Path to dataset folder
     --train-config <path> \               # Optional: Path to training YAML config
@@ -235,7 +235,7 @@ model:
 ### Basic Evaluation
 
 ```bash
-python eval.py \
+python3 eval.py \
     --checkpoint models/best_model.pth \  # Path to trained model
     --test-folder ../test_image \         # Test dataset directory
     --threshold 0.5 \                     # Confidence threshold

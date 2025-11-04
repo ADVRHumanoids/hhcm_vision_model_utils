@@ -397,16 +397,16 @@ def main():
 Examples:
   # Upload with API key from environment variable
   export LABELBOX_API_KEY="your_api_key_here"
-  python upload_to_labelbox.py --dir ./big-images-core --project "My YOLO Project"
+  python3 upload_to_labelbox.py --dir ./big-images-core --project "My YOLO Project"
   
   # Upload only train and val splits
-  python upload_to_labelbox.py --dir ./dataset --project "Training Data" --splits train val
+  python3 upload_to_labelbox.py --dir ./dataset --project "Training Data" --splits train val
   
   # Upload with explicit API key
-  python upload_to_labelbox.py --dir ./dataset --project "My Project" --api-key "your_key"
+  python3 upload_to_labelbox.py --dir ./dataset --project "My Project" --api-key "your_key"
   
   # Use existing ontology (don't create new one)
-  python upload_to_labelbox.py --dir ./dataset --project "My Project" --no-create-ontology
+  python3 upload_to_labelbox.py --dir ./dataset --project "My Project" --no-create-ontology
   
 Requirements:
   pip install labelbox pillow

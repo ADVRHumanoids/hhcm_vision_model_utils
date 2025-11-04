@@ -33,14 +33,14 @@ pip install labelme2yolo shapely ndjson requests  # For dataset tools
 ```bash
 # 1. Prepare dataset (Labelbox → YOLO)
 cd dataset_tools/labelme/
-python ndjson_to_labelme.py --config config.yaml --ndjson export.ndjson --image-folder dataset/
+python3 ndjson_to_labelme.py --config config.yaml --ndjson export.ndjson --image-folder dataset/
 
 pip install labelme2yolo
 labelme2yolo --json_dir dataset/ --val_size 0.2 --output_format polygon --segmentation polygon
 
 # 2. Train YOLO segmentation model
 cd ../../training/segmentation/yolo/
-python train_yolo11_seg.py --data path/to/data.yaml --model yolo11m-seg.pt --epochs 100
+python3 train_yolo11_seg.py --data path/to/data.yaml --model yolo11m-seg.pt --epochs 100
 ```
 
 ## Repository Structure

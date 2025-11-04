@@ -698,12 +698,12 @@ stopper = TrialPlateauStopper(
 
 2. Reduce concurrent trials:
    ```bash
-   python tune_yolo11_seg.py --concurrent 1
+   python3 tune_yolo11_seg.py --concurrent 1
    ```
 
 3. Use smaller model:
    ```bash
-   python tune_yolo11_seg.py --model yolo11n-seg.pt
+   python3 tune_yolo11_seg.py --model yolo11n-seg.pt
    ```
 
 ---
@@ -715,7 +715,7 @@ stopper = TrialPlateauStopper(
 - [ ] Prepare YOLO dataset with data.yaml
 - [ ] Define hyperparameters search space
 - [ ] (Optional) Define initial hyperparameter configurations
-- [ ] Run the script (example: `python tune_yolo11_seg.py --data path/to/data.yaml --project my_project --concurrent 2`)
+- [ ] Run the script (example: `python3 tune_yolo11_seg.py --data path/to/data.yaml --project my_project --concurrent 2`)
 - [ ] Monitor in W&B dashboard
 - [ ] Extract best hyperparameters
 - [ ] Retrain final model with best config

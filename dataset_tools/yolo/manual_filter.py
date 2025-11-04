@@ -248,13 +248,13 @@ Controls:
 
 Examples:
   # Review all splits
-  python manual_filter.py --dataset ./dataset/dataset.yaml
+  python3 manual_filter.py --dataset ./dataset/dataset.yaml
   
   # Review only training set
-  python manual_filter.py --dataset ./dataset/dataset.yaml --splits train
+  python3 manual_filter.py --dataset ./dataset/dataset.yaml --splits train
   
   # Review validation and test sets
-  python manual_filter.py --dataset ./dataset/dataset.yaml --splits val test
+  python3 manual_filter.py --dataset ./dataset/dataset.yaml --splits val test
 
 Notes:
   - Deleted files are permanently removed (not moved to trash)

@@ -31,10 +31,10 @@ pip install tensorflow opencv-python pillow numpy matplotlib tqdm
 **Usage**:
 ```bash
 # Basic conversion
-python tfrecord_to_coco.py <tfrecord_path> <output_root>
+python3 tfrecord_to_coco.py <tfrecord_path> <output_root>
 
 # Example
-python tfrecord_to_coco.py data/train.tfrecord output/coco_dataset
+python3 tfrecord_to_coco.py data/train.tfrecord output/coco_dataset
 ```
 
 **Input Format**:

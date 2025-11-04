@@ -34,7 +34,7 @@ This script was a simple wrapper around the original YOLOv5 training script from
 
 **Example Usage** (deprecated):
 ```bash
-python TrainYolo.py \
+python3 TrainYolo.py \
     --train_file /path/to/yolov5/train.py \
     --data_file dataset.yaml \
     --batch 16 \

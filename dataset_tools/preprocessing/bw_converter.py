@@ -1,7 +1,23 @@
 #!/usr/bin/env python3
 """
-Convert all jpeg images in a folder to black & white,
-adjust contrast and brightness, and optionally preview interactively.
+Convert images to black & white with automatic contrast/brightness adjustment.
+
+Processes all JPEG/PNG images in a folder, converting them to grayscale and applying
+automatic histogram-based contrast and brightness adjustment. Supports both preview
+mode with side-by-side comparison and batch processing with automatic saving.
+
+Arguments:
+    --input: Path to input folder containing images (required)
+    --output: Path to save processed images (required)
+    --save: Enable saving mode (default: preview only)
+    --clip-percent: Histogram clip percentage for contrast (default: 1.0)
+    --save-gray: Save grayscale version instead of adjusted (default: False)
+
+Controls (Preview Mode):
+    SPACE / ENTER: Next image
+    Q / ESC: Quit viewer
+
+Author: Alessio Lovato
 """
 
 import cv2
@@ -9,10 +25,22 @@ import os
 import argparse
 import numpy as np
 
-def display_images_in_window(original, gray, adjusted, 
-                             window_name: str = "Image Comparison", 
+def display_images_in_window(original, gray, adjusted,
+                             window_name: str = "Image Comparison",
                              title_text: str = "") -> None:
-    """Display original, grayscale, and adjusted images side by side in a named window."""
+    """
+    Display original, grayscale, and adjusted images side by side in a named window.
+
+    Creates a horizontal stack of three images (original, grayscale, adjusted) with
+    labeled sections and an optional title bar showing filename and adjustment parameters.
+
+    Args:
+        original: Original BGR image
+        gray: Grayscale version (can be 1 or 3 channel)
+        adjusted: Contrast/brightness adjusted image
+        window_name: Name of the OpenCV window (default: "Image Comparison")
+        title_text: Optional title text to display at top (default: "")
+    """
     # Ensure all images are 3-channel for stacking
     if len(gray.shape) == 2:
         gray_bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
@@ -44,13 +72,30 @@ def display_images_in_window(original, gray, adjusted,
     cv2.imshow(window_name, labeled)
 
 def automatic_brightness_and_contrast(image, clip_hist_percent=1):
-    """Automatically adjust brightness and contrast of an image.
-    Clips histogram by given percentage to avoid outliers.
-     Args:
-         image: Input BGR image
-         clip_hist_percent: Percentage of histogram to clip (default: 1%)
-     Returns:
-         Tuple of (adjusted image, alpha, beta)
+    """
+    Automatically adjust brightness and contrast using histogram clipping.
+
+    Uses cumulative histogram analysis to find optimal contrast stretching parameters.
+    Clips the darkest and brightest pixels (by specified percentage) to avoid outliers,
+    then stretches the remaining range to full 0-255 dynamic range.
+
+    Algorithm:
+    1. Convert to grayscale and compute histogram
+    2. Calculate cumulative distribution
+    3. Clip specified percentage from both ends
+    4. Calculate alpha (contrast) and beta (brightness) from clipped range
+    5. Apply linear transformation: output = alpha * input + beta
+
+    Args:
+        image: Input BGR image
+        clip_hist_percent: Percentage of histogram to clip (default: 1%)
+                          Higher values = more aggressive contrast enhancement
+
+    Returns:
+        Tuple of (adjusted_image, alpha, beta) where:
+            - adjusted_image: Contrast/brightness adjusted BGR image
+            - alpha: Contrast multiplication factor
+            - beta: Brightness addition factor
     """
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     

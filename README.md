@@ -1,6 +1,6 @@
-# HHCM Vision Model Workbench
+# HHCM Vision Model Utils
 
-A comprehensive toolkit for computer vision model development, specializing in object detection and instance segmentation. This workbench provides end-to-end workflows from dataset preparation through model training, with support for multiple frameworks including YOLO and Mask RCNN.
+A comprehensive toolkit for computer vision model development, specializing in object detection and instance segmentation. This repo provides end-to-end workflows from dataset preparation through model training, with support for multiple frameworks including YOLO and Mask RCNN.
 
 ## Overview
 
@@ -16,8 +16,8 @@ This repository contains production-ready tools for:
 
 ```bash
 # Clone repository
-git clone <repository-url>
-cd hhcm-vision-model-workbench
+git clone https://github.com/ADVRHumanoids/hhcm_vision_model_utils
+cd hhcm-vision-model-utils
 
 # Install core dependencies
 pip install torch torchvision opencv-python numpy pyyaml matplotlib pillow
@@ -46,7 +46,7 @@ python3 train_yolo11_seg.py --data path/to/data.yaml --model yolo11m-seg.pt --ep
 ## Repository Structure
 
 ```
-hhcm-vision-model-workbench/
+hhcm-vision-model-utils/
 ├── training/              # Model training pipelines
 │   ├── detection/         # Object detection models
 │   │   └── multimodel/    # Multi-model comparison (Faster R-CNN, RetinaNet, SSD)

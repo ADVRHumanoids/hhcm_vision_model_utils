@@ -56,6 +56,7 @@ hhcm-vision-model-utils/
 ├── dataset_tools/         # Dataset preparation and conversion
 │   ├── yolo/              # YOLO format tools (9 scripts)
 │   ├── labelme/           # LabelMe format tools (5 scripts)
+│   ├── coco/              # COCO format tools (2 scripts)
 │   ├── tensorflow/        # TFRecord tools (2 scripts)
 │   └── preprocessing/     # Image enhancement (1 script)
 ├── utils/                 # Utility scripts
@@ -98,6 +99,8 @@ hhcm-vision-model-utils/
 |------|-----|------|
 | Labelbox NDJSON | LabelMe | `dataset_tools/labelme/ndjson_to_labelme.py` |
 | LabelMe | YOLO | `labelme2yolo` (pip package) |
+| YOLO | COCO | `dataset_tools/coco/yolo_to_coco_converter.py` |
+| TFRecord | COCO | `dataset_tools/coco/tfrecord_to_coco.py` |
 | COCO | YOLO | `dataset_tools/yolo/extract_coco_export_yolo.py` |
 | Labelbox NDJSON | TFRecord | `dataset_tools/tensorflow/ndjson_to_tfrecord.py` |
 
@@ -156,6 +159,7 @@ Each directory contains comprehensive README.md files:
 - [Dataset Tools](dataset_tools/) - Conversion and preparation
   - [YOLO Tools](dataset_tools/yolo/)
   - [LabelMe Tools](dataset_tools/labelme/)
+  - [COCO Tools](dataset_tools/coco/)
   - [TensorFlow Tools](dataset_tools/tensorflow/)
   - [Preprocessing](dataset_tools/preprocessing/)
 - [Utilities](utils/) - Helper scripts

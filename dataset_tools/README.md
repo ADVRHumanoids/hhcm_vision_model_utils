@@ -19,6 +19,10 @@ This directory contains tools for dataset preparation, format conversion, augmen
 - Interactive dataset visualization
 - Polygon-based annotation tools
 
+**[COCO Tools](coco/)** - COCO format utilities
+- YOLO → COCO conversion
+- TFRecord → COCO conversion
+
 **[TensorFlow Tools](tensorflow/)** - TFRecord format utilities
 - Labelbox → TFRecord conversion
 - TFRecord visualization and debugging
@@ -37,8 +41,8 @@ This directory contains tools for dataset preparation, format conversion, augmen
 |--------|-----------|-------|
 | **YOLO** | `.txt` normalized coordinates | [yolo/](yolo/) |
 | **LabelMe** | `.json` polygon annotations | [labelme/](labelme/) |
+| **COCO** | Single `.json` with images | [coco/](coco/) |
 | **TFRecord** | Binary TensorFlow format | [tensorflow/](tensorflow/) |
-| **COCO** | Single `.json` with images | Via conversion |
 
 ## Common Workflows
 
@@ -75,6 +79,8 @@ python3 balance_dataset.py \
 | Labelbox NDJSON | LabelMe | `labelme/ndjson_to_labelme.py` | [docs](labelme/) |
 | LabelMe | YOLO | `labelme2yolo` (pip package) | `pip install labelme2yolo` |
 | COCO | YOLO Det | `yolo/coco_to_yolo.py` | [docs](yolo/) |
+| YOLO | COCO | `coco/yolo_to_coco_converter.py` | [docs](coco/) |
+| TFRecord | COCO | `coco/tfrecord_to_coco.py` | [docs](coco/) |
 | Labelbox NDJSON | TFRecord | `tensorflow/ndjson_to_tfrecord.py` | [docs](tensorflow/) |
 
 

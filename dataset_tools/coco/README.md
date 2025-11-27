@@ -8,6 +8,114 @@ COCO format provides a standardized JSON structure for dataset annotations, maki
 
 ## Scripts
 
+### yolo_to_coco_converter.py
+
+**Purpose**: Convert YOLO segmentation datasets to COCO format
+
+**Key Features**:
+- **YOLO Segmentation Support**: Handles YOLO format polygon annotations with normalized coordinates
+- **Split Preservation**: Maintains train/val/test splits or merges into single dataset
+- **Coordinate Conversion**: Converts normalized YOLO coordinates to absolute pixel coordinates
+- **COCO JSON Generation**: Creates standardized annotations.json with:
+  - Image metadata (dimensions, filenames, IDs)
+  - Category definitions from YOLO class names
+  - Instance annotations with bounding boxes and polygon segmentations
+  - Area calculations for each instance
+- **Image Copying**: Automatically copies images to output directories
+
+**Requirements**:
+```bash
+pip install pillow pyyaml
+```
+
+**Usage**:
+```bash
+# Convert with existing splits (train/val/test folders)
+python3 yolo_to_coco_converter.py --input-dir /path/to/yolo/dataset --output-dir ./coco-output
+
+# Merge all splits into single folder
+python3 yolo_to_coco_converter.py --input-dir /path/to/yolo/dataset --output-dir ./coco-merged --merge
+```
+
+**Input Structure**:
+```
+dataset/
+├── dataset.yaml           # Contains class names (or classes.txt)
+├── labels/
+│   ├── train/            # Training labels (.txt files)
+│   ├── val/              # Validation labels (.txt files)
+│   └── test/             # Test labels (.txt files, optional)
+└── images/
+    ├── train/            # Training images
+    ├── val/              # Validation images
+    └── test/             # Test images (optional)
+```
+
+**Output Structure** (Without --merge):
+```
+output-dir/
+├── train/
+│   ├── annotations.json
+│   └── [images]
+├── val/
+│   ├── annotations.json
+│   └── [images]
+└── test/
+    ├── annotations.json
+    └── [images]
+```
+
+**Output Structure** (With --merge):
+```
+output-dir/
+├── annotations.json
+└── [all images]
+```
+
+**YOLO Annotation Format**:
+```
+class_id x1 y1 x2 y2 ... xn yn  # Normalized coordinates (0-1)
+```
+
+**COCO Annotations Format**:
+```json
+{
+  "images": [
+    {
+      "id": 1,
+      "file_name": "image1.jpg",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "categories": [
+    {
+      "id": 0,
+      "name": "class_name",
+      "supercategory": "object"
+    }
+  ],
+  "annotations": [
+    {
+      "id": 1,
+      "image_id": 1,
+      "category_id": 0,
+      "bbox": [x, y, width, height],
+      "area": 12345,
+      "iscrowd": 0,
+      "segmentation": [[x1, y1, x2, y2, ...]]
+    }
+  ]
+}
+```
+
+**Features**:
+- **Automatic Class Loading**: Reads class names from classes.txt or data.yaml files
+- **Polygon Conversion**: Converts YOLO polygon coordinates to COCO segmentation format
+- **Bounding Box Calculation**: Automatically computes bounding boxes from segmentation polygons
+- **Area Calculation**: Approximates area using bounding box dimensions
+- **Multi-format Support**: Handles both split-based and merged dataset structures
+
 ### tfrecord_to_coco.py
 
 **Purpose**: Convert TensorFlow TFRecord files to COCO dataset format

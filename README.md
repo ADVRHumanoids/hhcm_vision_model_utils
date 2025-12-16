@@ -56,7 +56,7 @@ hhcm-vision-model-utils/
 ├── dataset_tools/         # Dataset preparation and conversion
 │   ├── yolo/              # YOLO format tools (9 scripts)
 │   ├── labelme/           # LabelMe format tools (5 scripts)
-│   ├── coco/              # COCO format tools (2 scripts)
+│   ├── coco/              # COCO format tools (3 scripts)
 │   ├── tensorflow/        # TFRecord tools (2 scripts)
 │   └── preprocessing/     # Image enhancement (1 script)
 ├── utils/                 # Utility scripts

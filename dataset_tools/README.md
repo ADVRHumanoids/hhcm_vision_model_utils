@@ -2,9 +2,7 @@
 
 This directory contains tools for dataset preparation, format conversion, augmentation, and visualization. These tools form a comprehensive pipeline for preparing vision datasets from annotation to training-ready formats.
 
-## Tools by Category
-
-### Format Conversion
+## Tools
 
 **[YOLO Tools](yolo/)** - YOLO format utilities
 - LabelMe → YOLO conversion
@@ -22,16 +20,16 @@ This directory contains tools for dataset preparation, format conversion, augmen
 **[COCO Tools](coco/)** - COCO format utilities
 - YOLO → COCO conversion
 - TFRecord → COCO conversion
+- COCO annotation visualizer
 
 **[TensorFlow Tools](tensorflow/)** - TFRecord format utilities
 - Labelbox → TFRecord conversion
 - TFRecord visualization and debugging
 
-### Preprocessing
-
 **[Preprocessing Tools](preprocessing/)** - Image enhancement
 - Grayscale conversion
 - Automatic contrast/brightness adjustment
+
 
 ---
 

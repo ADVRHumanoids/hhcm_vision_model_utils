@@ -208,6 +208,30 @@ output_root/
 - **Multi-instance Support**: Handles multiple instances per image with distinct colors
 - **Statistics Reporting**: Reports the image with the most annotations after conversion
 
+### coco_gallery.py
+
+**Purpose**: Interactive single-window COCO annotations viewer
+
+**Key Features**:
+- Shows original image on the left and annotated image (original + mask overlay) on the right in a single window
+- Keyboard navigation: `'d'` to advance, `'a'` to go back, and `'q'` to quit; displays image counter
+- Renders polygon and RLE segmentations, fills masks, draws bounding boxes and category labels
+- Handles missing images with a placeholder and ignores malformed segmentations gracefully
+
+**Requirements**:
+```bash
+pip install pycocotools opencv-python numpy
+```
+
+**Usage**:
+```bash
+python3 coco_gallery.py --coco annotations.json --images-root /path/to/images
+```
+
+**Notes**:
+- Colors are deterministic per category using a small palette.
+- Useful for quick dataset inspection and visualization; not an annotation editor.
+
 ## Use Cases
 
 - Converting TensorFlow datasets for use with PyTorch-based training pipelines
